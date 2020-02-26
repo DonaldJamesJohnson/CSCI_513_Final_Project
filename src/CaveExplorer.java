@@ -18,24 +18,24 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
 
-public class OceanExplorer extends Application 
+public class CaveExplorer extends Application 
 {
 	
-	OceanMap oceanMap = new OceanMap();
+	CaveMap caveMap = new CaveMap();
 	AnchorPane myPane = new AnchorPane();
-	Scene scene = new Scene(myPane, oceanMap.scale*oceanMap.dimension, oceanMap.scale*oceanMap.dimension);
+	Scene scene = new Scene(myPane, caveMap.scale*caveMap.dimension, caveMap.scale*caveMap.dimension);
 	Image shipImage;
 	ImageView shipImageView;
 	Image pirateImage;
 	ImageView pirateImageView_1;
 	ImageView pirateImageView_2;
-	int[][] oceanGrid = oceanMap.getMap();
+	int[][] oceanGrid = caveMap.getMap();
 	Random rand = new Random();
-	int rand_x = rand.nextInt(oceanMap.dimension);
-	int rand_y = rand.nextInt(oceanMap.dimension);
-	Ship ship = new Ship(rand_x, rand_y);
-	PirateShip pirateShip_1 = new PirateShip(0, 0, oceanGrid);
-	PirateShip pirateShip_2 = new PirateShip(1, 1, oceanGrid);
+	int rand_x = rand.nextInt(caveMap.dimension);
+	int rand_y = rand.nextInt(caveMap.dimension);
+	Player ship = new Player(rand_x, rand_y);
+	Creature pirateShip_1 = new Creature(0, 0, oceanGrid);
+	Creature pirateShip_2 = new Creature(1, 1, oceanGrid);
 	public enum OceanItems
 	{
 		OCEAN(0),
@@ -78,12 +78,12 @@ public class OceanExplorer extends Application
 	
 	public void drawMap() 						// Draws an empty ocean map
 	{						
-		for (int y = 0; y < oceanMap.dimension; y++) 
+		for (int y = 0; y < caveMap.dimension; y++) 
 		{
-			for (int x = 0; x < oceanMap.dimension; x++) 
+			for (int x = 0; x < caveMap.dimension; x++) 
 			{
 				oceanGrid[x][y] = OceanItems.OCEAN.getIntValue();
-				Rectangle rect = new Rectangle(x*oceanMap.scale, y*oceanMap.scale, oceanMap.scale, oceanMap.scale);
+				Rectangle rect = new Rectangle(x*caveMap.scale, y*caveMap.scale, caveMap.scale, caveMap.scale);
 				rect.setStroke(Color.BLACK);
 				rect.setFill(Color.PALETURQUOISE);
 				myPane.getChildren().add(rect);
@@ -96,10 +96,10 @@ public class OceanExplorer extends Application
 		Random rand = new Random();
 		for (int i = 0; i < num; i++)
 		{
-			rand_x = rand.nextInt(oceanMap.dimension);
-			rand_y = rand.nextInt(oceanMap.dimension);
+			rand_x = rand.nextInt(caveMap.dimension);
+			rand_y = rand.nextInt(caveMap.dimension);
 			oceanGrid[rand_x][rand_y] = OceanItems.ISLAND.getIntValue();
-			Rectangle rect = new Rectangle(rand_x*oceanMap.scale, rand_y*oceanMap.scale, oceanMap.scale, oceanMap.scale);
+			Rectangle rect = new Rectangle(rand_x*caveMap.scale, rand_y*caveMap.scale, caveMap.scale, caveMap.scale);
 			rect.setStroke(Color.BLACK);
 			rect.setFill(Color.DARKGREEN);
 			myPane.getChildren().add(rect);
@@ -112,8 +112,8 @@ public class OceanExplorer extends Application
 		{
 			while(oceanGrid[ship.getShipLocation().x][ship.getShipLocation().y] != OceanItems.OCEAN.getIntValue())
 			{
-				rand_x = rand.nextInt(oceanMap.dimension);
-				rand_y = rand.nextInt(oceanMap.dimension);
+				rand_x = rand.nextInt(caveMap.dimension);
+				rand_y = rand.nextInt(caveMap.dimension);
 				ship.currentLocation.x = rand_x;
 				ship.currentLocation.y = rand_y;
 			}
@@ -121,14 +121,14 @@ public class OceanExplorer extends Application
 		oceanGrid[ship.getShipLocation().x][ship.getShipLocation().y] = OceanItems.SHIP.getIntValue();
 	}
 	
-	public Point placePirate(PirateShip p)		// Places a pirate ship randomly on the map
+	public Point placePirate(Creature p)		// Places a pirate ship randomly on the map
 	{
 		if (oceanGrid[p.getShipLocation().x][p.getShipLocation().y] != OceanItems.OCEAN.getIntValue())
 		{
 			while(oceanGrid[p.getShipLocation().x][p.getShipLocation().y] != OceanItems.OCEAN.getIntValue())
 			{
-				rand_x = rand.nextInt(oceanMap.dimension);
-				rand_y = rand.nextInt(oceanMap.dimension);
+				rand_x = rand.nextInt(caveMap.dimension);
+				rand_y = rand.nextInt(caveMap.dimension);
 				p.piratePosition.x = rand_x;
 				p.piratePosition.y = rand_y;
 			}	
@@ -141,8 +141,8 @@ public class OceanExplorer extends Application
 	{
 		shipImage = new Image("ship.png", 50, 50, true, true);
 		shipImageView = new ImageView(shipImage);
-		shipImageView.setX(ship.getShipLocation().x * oceanMap.scale);
-		shipImageView.setY(ship.getShipLocation().y * oceanMap.scale);
+		shipImageView.setX(ship.getShipLocation().x * caveMap.scale);
+		shipImageView.setY(ship.getShipLocation().y * caveMap.scale);
 		myPane.getChildren().add(shipImageView);
 	}
 	
@@ -150,8 +150,8 @@ public class OceanExplorer extends Application
 	{
 		pirateImage = new Image("pirateShip.png", 50, 50, true, true);
 		pirateImageView_1 = new ImageView(pirateImage);
-		pirateImageView_1.setX(pirateShip_1.getShipLocation().x * oceanMap.scale);
-		pirateImageView_1.setY(pirateShip_1.getShipLocation().y * oceanMap.scale);
+		pirateImageView_1.setX(pirateShip_1.getShipLocation().x * caveMap.scale);
+		pirateImageView_1.setY(pirateShip_1.getShipLocation().y * caveMap.scale);
 		myPane.getChildren().add(pirateImageView_1);
 	}
 	
@@ -159,8 +159,8 @@ public class OceanExplorer extends Application
 	{
 		pirateImage = new Image("pirateShip.png", 50, 50, true, true);
 		pirateImageView_2 = new ImageView(pirateImage);
-		pirateImageView_2.setX(pirateShip_2.getShipLocation().x * oceanMap.scale);
-		pirateImageView_2.setY(pirateShip_2.getShipLocation().y * oceanMap.scale);
+		pirateImageView_2.setX(pirateShip_2.getShipLocation().x * caveMap.scale);
+		pirateImageView_2.setY(pirateShip_2.getShipLocation().y * caveMap.scale);
 		myPane.getChildren().add(pirateImageView_2);	
 	}
 	
@@ -173,7 +173,7 @@ public class OceanExplorer extends Application
 				switch(ke.getCode())
 				{
 					case RIGHT:
-						if (ship.getShipLocation().x < oceanMap.dimension-1) 
+						if (ship.getShipLocation().x < caveMap.dimension-1) 
 						{
 							if (oceanGrid[ship.getShipLocation().x+1][ship.getShipLocation().y] == OceanItems.OCEAN.getIntValue()) 
 								{
@@ -217,7 +217,7 @@ public class OceanExplorer extends Application
 						}
 						break;
 					case DOWN:
-						if (ship.getShipLocation().y < oceanMap.dimension-1)
+						if (ship.getShipLocation().y < caveMap.dimension-1)
 						{
 							if (oceanGrid[ship.getShipLocation().x][ship.getShipLocation().y+1] == OceanItems.OCEAN.getIntValue())
 								{
@@ -234,12 +234,12 @@ public class OceanExplorer extends Application
 					default:
 						break;
 				}
-				shipImageView.setX(ship.getShipLocation().x * oceanMap.scale);
-				shipImageView.setY(ship.getShipLocation().y * oceanMap.scale);
-				pirateImageView_1.setX(pirateShip_1.getShipLocation().x * oceanMap.scale);
-				pirateImageView_1.setY(pirateShip_1.getShipLocation().y * oceanMap.scale);
-				pirateImageView_2.setX(pirateShip_2.getShipLocation().x * oceanMap.scale);
-				pirateImageView_2.setY(pirateShip_2.getShipLocation().y * oceanMap.scale);
+				shipImageView.setX(ship.getShipLocation().x * caveMap.scale);
+				shipImageView.setY(ship.getShipLocation().y * caveMap.scale);
+				pirateImageView_1.setX(pirateShip_1.getShipLocation().x * caveMap.scale);
+				pirateImageView_1.setY(pirateShip_1.getShipLocation().y * caveMap.scale);
+				pirateImageView_2.setX(pirateShip_2.getShipLocation().x * caveMap.scale);
+				pirateImageView_2.setY(pirateShip_2.getShipLocation().y * caveMap.scale);
 			}
 		});	
 	}

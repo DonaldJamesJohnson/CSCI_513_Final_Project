@@ -10,7 +10,7 @@ import java.awt.Point;
 import java.util.Observable;
 import java.util.Observer;
 
-public class PirateShip implements Observer
+public class Creature implements Observer
 {
 	public Point piratePosition = new Point();
 	public Point shipPosition = new Point();
@@ -31,7 +31,7 @@ public class PirateShip implements Observer
 		public int getIntValue() { return intValue; }
 	}
 	
-	public PirateShip(int x, int y, int[][] oceanGrid) {
+	public Creature(int x, int y, int[][] oceanGrid) {
 		piratePosition.x = x;
 		piratePosition.y = y;
 		this.oceanGrid = oceanGrid;
@@ -46,9 +46,9 @@ public class PirateShip implements Observer
 
 	public void update(Observable o, Object arg1) 
 	{
-		if (o instanceof Ship)
+		if (o instanceof Player)
 		{
-			shipPosition = ((Ship)o).getShipLocation();
+			shipPosition = ((Player)o).getShipLocation();
 			move();
 		}
 		

@@ -4,7 +4,7 @@
  * 
  *  Purpose: The OceanMap class stores data about the map. Namely, the map itself, the dimensionality of the map, and the scale. 
  */
-public class OceanMap {
+public class CaveMap {
 	int[][] oceanMap = new int[10][10];
 	final int dimension = 10;
 	final int scale = 50;

@@ -9,11 +9,11 @@
 import java.awt.Point;
 import java.util.Observable;
 
-public class Ship extends Observable
+public class Player extends Observable
 {
 	Point currentLocation = new Point();
 	
-	public Ship(int X, int Y) 
+	public Player(int X, int Y) 
 	{
 		currentLocation.x = X;
 		currentLocation.y = Y;
