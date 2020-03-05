@@ -24,44 +24,29 @@ public class CaveExplorer extends Application
 	CaveMap caveMap = new CaveMap();
 	AnchorPane myPane = new AnchorPane();
 	Scene scene = new Scene(myPane, caveMap.scale*caveMap.dimension, caveMap.scale*caveMap.dimension);
-	Image shipImage;
-	ImageView shipImageView;
-	Image pirateImage;
+	Image playerImage;
+	ImageView playerImageView;
+	Image enemyImage;
 	ImageView pirateImageView_1;
 	ImageView pirateImageView_2;
-	int[][] oceanGrid = caveMap.getMap();
+	int[][] caveGrid = caveMap.getMap();
 	Random rand = new Random();
 	int rand_x = rand.nextInt(caveMap.dimension);
 	int rand_y = rand.nextInt(caveMap.dimension);
 	Player ship = new Player(rand_x, rand_y);
-	Creature pirateShip_1 = new Creature(0, 0, oceanGrid);
-	Creature pirateShip_2 = new Creature(1, 1, oceanGrid);
-	public enum OceanItems
-	{
-		OCEAN(0),
-		ISLAND(1),
-		SHIP(2),
-		PIRATE(3);
-		
-		public final int intValue;
-		OceanItems(int intValue)
-		{
-			this.intValue = intValue;
-		}
-		
-		public int getIntValue() { return intValue; }
-	}
+	Enemy pirateShip_1 = new Enemy(0, 0, caveGrid);
+	Enemy pirateShip_2 = new Enemy(1, 1, caveGrid);
 	
 	
-	public void start(Stage oceanStage) throws Exception 
+	public void start(Stage caveStage) throws Exception 
 	{
-		oceanStage.setScene(scene);
-		oceanStage.setTitle("Christopher Columbus Game");
-		oceanStage.show();
+		caveStage.setScene(scene);
+		caveStage.setTitle("Christopher Columbus Game");
+		caveStage.show();
 		ship.addObserver(pirateShip_1);
 		ship.addObserver(pirateShip_2);
 		drawMap();
-		placeIsland(10);
+		placeIsland(30);
 		placeShip();
 		loadShipImage();
 		pirateShip_1.piratePosition = placePirate(pirateShip_1);
@@ -82,10 +67,10 @@ public class CaveExplorer extends Application
 		{
 			for (int x = 0; x < caveMap.dimension; x++) 
 			{
-				oceanGrid[x][y] = OceanItems.OCEAN.getIntValue();
+				caveGrid[x][y] = CaveItems.FLOOR.getIntValue();
 				Rectangle rect = new Rectangle(x*caveMap.scale, y*caveMap.scale, caveMap.scale, caveMap.scale);
 				rect.setStroke(Color.BLACK);
-				rect.setFill(Color.PALETURQUOISE);
+				rect.setFill(Color.GREY);
 				myPane.getChildren().add(rect);
 			}
 		}
@@ -98,19 +83,19 @@ public class CaveExplorer extends Application
 		{
 			rand_x = rand.nextInt(caveMap.dimension);
 			rand_y = rand.nextInt(caveMap.dimension);
-			oceanGrid[rand_x][rand_y] = OceanItems.ISLAND.getIntValue();
+			caveGrid[rand_x][rand_y] = CaveItems.WALL.getIntValue();
 			Rectangle rect = new Rectangle(rand_x*caveMap.scale, rand_y*caveMap.scale, caveMap.scale, caveMap.scale);
 			rect.setStroke(Color.BLACK);
-			rect.setFill(Color.DARKGREEN);
+			rect.setFill(Color.DIMGRAY);
 			myPane.getChildren().add(rect);
 		}
 	}
 	
 	public void placeShip()						// Places the player ship randomly on the map
 	{
-		if (oceanGrid[ship.getShipLocation().x][ship.getShipLocation().y] != OceanItems.OCEAN.getIntValue())
+		if (caveGrid[ship.getShipLocation().x][ship.getShipLocation().y] != CaveItems.FLOOR.getIntValue())
 		{
-			while(oceanGrid[ship.getShipLocation().x][ship.getShipLocation().y] != OceanItems.OCEAN.getIntValue())
+			while(caveGrid[ship.getShipLocation().x][ship.getShipLocation().y] != CaveItems.FLOOR.getIntValue())
 			{
 				rand_x = rand.nextInt(caveMap.dimension);
 				rand_y = rand.nextInt(caveMap.dimension);
@@ -118,14 +103,14 @@ public class CaveExplorer extends Application
 				ship.currentLocation.y = rand_y;
 			}
 		}
-		oceanGrid[ship.getShipLocation().x][ship.getShipLocation().y] = OceanItems.SHIP.getIntValue();
+		caveGrid[ship.getShipLocation().x][ship.getShipLocation().y] = CaveItems.PLAYER.getIntValue();
 	}
 	
-	public Point placePirate(Creature p)		// Places a pirate ship randomly on the map
+	public Point placePirate(Enemy p)		// Places a pirate ship randomly on the map
 	{
-		if (oceanGrid[p.getShipLocation().x][p.getShipLocation().y] != OceanItems.OCEAN.getIntValue())
+		if (caveGrid[p.getShipLocation().x][p.getShipLocation().y] != CaveItems.FLOOR.getIntValue())
 		{
-			while(oceanGrid[p.getShipLocation().x][p.getShipLocation().y] != OceanItems.OCEAN.getIntValue())
+			while(caveGrid[p.getShipLocation().x][p.getShipLocation().y] != CaveItems.FLOOR.getIntValue())
 			{
 				rand_x = rand.nextInt(caveMap.dimension);
 				rand_y = rand.nextInt(caveMap.dimension);
@@ -133,23 +118,23 @@ public class CaveExplorer extends Application
 				p.piratePosition.y = rand_y;
 			}	
 		}
-		oceanGrid[p.getShipLocation().x][p.getShipLocation().y] = OceanItems.PIRATE.getIntValue();
+		caveGrid[p.getShipLocation().x][p.getShipLocation().y] = CaveItems.ENEMY.getIntValue();
 		return p.piratePosition;
 	}
 	
 	public void loadShipImage() 				// Loads the player ship image
 	{
-		shipImage = new Image("ship.png", 50, 50, true, true);
-		shipImageView = new ImageView(shipImage);
-		shipImageView.setX(ship.getShipLocation().x * caveMap.scale);
-		shipImageView.setY(ship.getShipLocation().y * caveMap.scale);
-		myPane.getChildren().add(shipImageView);
+		playerImage = new Image("ship.png", 50, 50, true, true);
+		playerImageView = new ImageView(playerImage);
+		playerImageView.setX(ship.getShipLocation().x * caveMap.scale);
+		playerImageView.setY(ship.getShipLocation().y * caveMap.scale);
+		myPane.getChildren().add(playerImageView);
 	}
 	
 	public void loadPirateImage_1()				// Loads the pirate ship image
 	{
-		pirateImage = new Image("pirateShip.png", 50, 50, true, true);
-		pirateImageView_1 = new ImageView(pirateImage);
+		enemyImage = new Image("pirateShip.png", 50, 50, true, true);
+		pirateImageView_1 = new ImageView(enemyImage);
 		pirateImageView_1.setX(pirateShip_1.getShipLocation().x * caveMap.scale);
 		pirateImageView_1.setY(pirateShip_1.getShipLocation().y * caveMap.scale);
 		myPane.getChildren().add(pirateImageView_1);
@@ -157,8 +142,8 @@ public class CaveExplorer extends Application
 	
 	public void loadPirateImage_2()				// Loads the second pirate ship image
 	{
-		pirateImage = new Image("pirateShip.png", 50, 50, true, true);
-		pirateImageView_2 = new ImageView(pirateImage);
+		enemyImage = new Image("pirateShip.png", 50, 50, true, true);
+		pirateImageView_2 = new ImageView(enemyImage);
 		pirateImageView_2.setX(pirateShip_2.getShipLocation().x * caveMap.scale);
 		pirateImageView_2.setY(pirateShip_2.getShipLocation().y * caveMap.scale);
 		myPane.getChildren().add(pirateImageView_2);	
@@ -175,67 +160,67 @@ public class CaveExplorer extends Application
 					case RIGHT:
 						if (ship.getShipLocation().x < caveMap.dimension-1) 
 						{
-							if (oceanGrid[ship.getShipLocation().x+1][ship.getShipLocation().y] == OceanItems.OCEAN.getIntValue()) 
+							if (caveGrid[ship.getShipLocation().x+1][ship.getShipLocation().y] == CaveItems.FLOOR.getIntValue()) 
 								{
-									oceanGrid[ship.getShipLocation().x][ship.getShipLocation().y] = OceanItems.OCEAN.getIntValue();
-									oceanGrid[ship.getShipLocation().x+1][ship.getShipLocation().y] = OceanItems.SHIP.getIntValue();
-									oceanGrid[pirateShip_1.getShipLocation().x][pirateShip_1.getShipLocation().y] = OceanItems.OCEAN.getIntValue();
-									oceanGrid[pirateShip_2.getShipLocation().x][pirateShip_2.getShipLocation().y] = OceanItems.OCEAN.getIntValue();
+								caveGrid[ship.getShipLocation().x][ship.getShipLocation().y] = CaveItems.FLOOR.getIntValue();
+								caveGrid[ship.getShipLocation().x+1][ship.getShipLocation().y] = CaveItems.PLAYER.getIntValue();
+								caveGrid[pirateShip_1.getShipLocation().x][pirateShip_1.getShipLocation().y] = CaveItems.FLOOR.getIntValue();
+								caveGrid[pirateShip_2.getShipLocation().x][pirateShip_2.getShipLocation().y] = CaveItems.FLOOR.getIntValue();
 									ship.goEast();
-									oceanGrid[pirateShip_1.getShipLocation().x][pirateShip_1.getShipLocation().y] = OceanItems.PIRATE.getIntValue();
-									oceanGrid[pirateShip_2.getShipLocation().x][pirateShip_2.getShipLocation().y] = OceanItems.PIRATE.getIntValue();
+									caveGrid[pirateShip_1.getShipLocation().x][pirateShip_1.getShipLocation().y] = CaveItems.ENEMY.getIntValue();
+									caveGrid[pirateShip_2.getShipLocation().x][pirateShip_2.getShipLocation().y] = CaveItems.ENEMY.getIntValue();
 								}
 						}
 						break;
 					case LEFT:
 						if (ship.getShipLocation().x > 0) 
 						{
-							if (oceanGrid[ship.getShipLocation().x-1][ship.getShipLocation().y] == OceanItems.OCEAN.getIntValue()) 
+							if (caveGrid[ship.getShipLocation().x-1][ship.getShipLocation().y] == CaveItems.FLOOR.getIntValue()) 
 								{
-									oceanGrid[ship.getShipLocation().x][ship.getShipLocation().y] = OceanItems.OCEAN.getIntValue();
-									oceanGrid[ship.getShipLocation().x-1][ship.getShipLocation().y] = OceanItems.SHIP.getIntValue();
-									oceanGrid[pirateShip_1.getShipLocation().x][pirateShip_1.getShipLocation().y] = OceanItems.OCEAN.getIntValue();
-									oceanGrid[pirateShip_2.getShipLocation().x][pirateShip_2.getShipLocation().y] = OceanItems.OCEAN.getIntValue();
+								caveGrid[ship.getShipLocation().x][ship.getShipLocation().y] = CaveItems.FLOOR.getIntValue();
+								caveGrid[ship.getShipLocation().x-1][ship.getShipLocation().y] = CaveItems.PLAYER.getIntValue();
+								caveGrid[pirateShip_1.getShipLocation().x][pirateShip_1.getShipLocation().y] = CaveItems.FLOOR.getIntValue();
+								caveGrid[pirateShip_2.getShipLocation().x][pirateShip_2.getShipLocation().y] = CaveItems.FLOOR.getIntValue();
 									ship.goWest();
-									oceanGrid[pirateShip_1.getShipLocation().x][pirateShip_1.getShipLocation().y] = OceanItems.PIRATE.getIntValue();
-									oceanGrid[pirateShip_2.getShipLocation().x][pirateShip_2.getShipLocation().y] = OceanItems.PIRATE.getIntValue();
+									caveGrid[pirateShip_1.getShipLocation().x][pirateShip_1.getShipLocation().y] = CaveItems.ENEMY.getIntValue();
+									caveGrid[pirateShip_2.getShipLocation().x][pirateShip_2.getShipLocation().y] = CaveItems.ENEMY.getIntValue();
 								}
 						}
 						break;
 					case UP:
 						if (ship.getShipLocation().y > 0) {
-							if (oceanGrid[ship.getShipLocation().x][ship.getShipLocation().y-1] == OceanItems.OCEAN.getIntValue())
+							if (caveGrid[ship.getShipLocation().x][ship.getShipLocation().y-1] == CaveItems.FLOOR.getIntValue())
 								{
-									oceanGrid[ship.getShipLocation().x][ship.getShipLocation().y] = OceanItems.OCEAN.getIntValue();
-									oceanGrid[ship.getShipLocation().x][ship.getShipLocation().y-1] = OceanItems.SHIP.getIntValue();
-									oceanGrid[pirateShip_1.getShipLocation().x][pirateShip_1.getShipLocation().y] = OceanItems.OCEAN.getIntValue();
-									oceanGrid[pirateShip_2.getShipLocation().x][pirateShip_2.getShipLocation().y] = OceanItems.OCEAN.getIntValue();
+								caveGrid[ship.getShipLocation().x][ship.getShipLocation().y] = CaveItems.FLOOR.getIntValue();
+								caveGrid[ship.getShipLocation().x][ship.getShipLocation().y-1] = CaveItems.PLAYER.getIntValue();
+								caveGrid[pirateShip_1.getShipLocation().x][pirateShip_1.getShipLocation().y] = CaveItems.FLOOR.getIntValue();
+								caveGrid[pirateShip_2.getShipLocation().x][pirateShip_2.getShipLocation().y] = CaveItems.FLOOR.getIntValue();
 									ship.goNorth();
-									oceanGrid[pirateShip_1.getShipLocation().x][pirateShip_1.getShipLocation().y] = OceanItems.PIRATE.getIntValue();
-									oceanGrid[pirateShip_2.getShipLocation().x][pirateShip_2.getShipLocation().y] = OceanItems.PIRATE.getIntValue();
+									caveGrid[pirateShip_1.getShipLocation().x][pirateShip_1.getShipLocation().y] = CaveItems.ENEMY.getIntValue();
+									caveGrid[pirateShip_2.getShipLocation().x][pirateShip_2.getShipLocation().y] = CaveItems.ENEMY.getIntValue();
 								}
 						}
 						break;
 					case DOWN:
 						if (ship.getShipLocation().y < caveMap.dimension-1)
 						{
-							if (oceanGrid[ship.getShipLocation().x][ship.getShipLocation().y+1] == OceanItems.OCEAN.getIntValue())
+							if (caveGrid[ship.getShipLocation().x][ship.getShipLocation().y+1] == CaveItems.FLOOR.getIntValue())
 								{
-									oceanGrid[ship.getShipLocation().x][ship.getShipLocation().y] = OceanItems.OCEAN.getIntValue();
-									oceanGrid[ship.getShipLocation().x][ship.getShipLocation().y+1] = OceanItems.SHIP.getIntValue();
-									oceanGrid[pirateShip_1.getShipLocation().x][pirateShip_1.getShipLocation().y] = OceanItems.OCEAN.getIntValue();
-									oceanGrid[pirateShip_2.getShipLocation().x][pirateShip_2.getShipLocation().y] = OceanItems.OCEAN.getIntValue();
+								caveGrid[ship.getShipLocation().x][ship.getShipLocation().y] = CaveItems.FLOOR.getIntValue();
+								caveGrid[ship.getShipLocation().x][ship.getShipLocation().y+1] = CaveItems.PLAYER.getIntValue();
+									caveGrid[pirateShip_1.getShipLocation().x][pirateShip_1.getShipLocation().y] = CaveItems.FLOOR.getIntValue();
+									caveGrid[pirateShip_2.getShipLocation().x][pirateShip_2.getShipLocation().y] = CaveItems.FLOOR.getIntValue();
 									ship.goSouth();	
-									oceanGrid[pirateShip_1.getShipLocation().x][pirateShip_1.getShipLocation().y] = OceanItems.PIRATE.getIntValue();
-									oceanGrid[pirateShip_2.getShipLocation().x][pirateShip_2.getShipLocation().y] = OceanItems.PIRATE.getIntValue();
+									caveGrid[pirateShip_1.getShipLocation().x][pirateShip_1.getShipLocation().y] = CaveItems.ENEMY.getIntValue();
+									caveGrid[pirateShip_2.getShipLocation().x][pirateShip_2.getShipLocation().y] = CaveItems.ENEMY.getIntValue();
 								}
 						}
 						break;
 					default:
 						break;
 				}
-				shipImageView.setX(ship.getShipLocation().x * caveMap.scale);
-				shipImageView.setY(ship.getShipLocation().y * caveMap.scale);
+				playerImageView.setX(ship.getShipLocation().x * caveMap.scale);
+				playerImageView.setY(ship.getShipLocation().y * caveMap.scale);
 				pirateImageView_1.setX(pirateShip_1.getShipLocation().x * caveMap.scale);
 				pirateImageView_1.setY(pirateShip_1.getShipLocation().y * caveMap.scale);
 				pirateImageView_2.setX(pirateShip_2.getShipLocation().x * caveMap.scale);
