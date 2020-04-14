@@ -1,9 +1,10 @@
-/Enemy$OceanItems.class
+/Monster.class
+/MonsterSprite.class
+/EnemySprite.class
 /Enemy.class
-/CaveExplorer$1.class
-/CaveExplorer$CaveItems.class
-/CaveExplorer$OceanItems.class
-/CaveItems.class
-/TestMap.class
-/ScrollAndClipBackground.class
+/CaveExplorer.class
 /TestMap$1.class
+/Test.class
+/TestMap$2.class
+/Player$1.class
+/Enemy$1.class

@@ -16,29 +16,28 @@ import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
 
 public class TestMap extends Application {
-
+	// Set tile size and the horizontal and vertical size
     private final int tileSize = 20;
     private final int numTilesHoriz = 500;
     private final int numTilesVert = 500;
-
-    private final int speed = 400; // pixels / second
-    private boolean up ;
-    private boolean down ;
-    private boolean left ;
-    private boolean right ;
-
-    private final int numFilledTiles = numTilesHoriz * numTilesVert / 20 ;  
+    private final int numFilledTiles = numTilesHoriz * numTilesVert / 2;
+    private final int totalTiles = numTilesHoriz * numTilesVert; 
     
     Pane pane = createBackground();
-    Rectangle player = new Rectangle(numTilesHoriz*tileSize/2, numTilesVert*tileSize/2, 20, 20);
+    Rectangle baseRect = new Rectangle(numTilesHoriz*tileSize/2, numTilesVert*tileSize/2, 20, 20);
+    Player player = new Player(20, 20, baseRect);
+    
+    Enemy enemy = new Enemy(tileSize);
+    Thread enemyThread;
+    
 
     @Override
     public void start(Stage primaryStage) {
     	// Create pane 
         // Create player 
-        player.setStroke(Color.BLACK);
-        player.setFill(Color.BLUE);
-        pane.getChildren().add(player);
+        pane.getChildren().add(player.playerRect);
+		player.addObserver(enemy);
+		player.Timer(pane);
         // Create scene
         Scene scene = new Scene(new BorderPane(pane), 800, 800);
         // Set clip for scene
@@ -47,80 +46,41 @@ public class TestMap extends Application {
         clip.heightProperty().bind(scene.heightProperty());
 
         clip.xProperty().bind(Bindings.createDoubleBinding(
-                () -> clampRange(player.getX() - scene.getWidth() / 2, 0, pane.getWidth() - scene.getWidth()), 
-                player.xProperty(), scene.widthProperty()));
+                () -> clampRange(player.playerRect.getX() - scene.getWidth() / 2, 0, pane.getWidth() - scene.getWidth()), 
+                player.playerRect.xProperty(), scene.widthProperty()));
         clip.yProperty().bind(Bindings.createDoubleBinding(
-                () -> clampRange(player.getY() - scene.getHeight() / 2, 0, pane.getHeight() - scene.getHeight()), 
-                player.yProperty(), scene.heightProperty()));
+                () -> clampRange(player.playerRect.getY() - scene.getHeight() / 2, 0, pane.getHeight() - scene.getHeight()), 
+                player.playerRect.yProperty(), scene.heightProperty()));
 
         pane.setClip(clip);
         pane.translateXProperty().bind(clip.xProperty().multiply(-1));
         pane.translateYProperty().bind(clip.yProperty().multiply(-1));
         
+		enemy.addToPane(pane);
+        
         // Player movement
-        scene.setOnKeyPressed(e -> processKey(e.getCode(), true));
-        scene.setOnKeyReleased(e -> processKey(e.getCode(), false));
+        scene.setOnKeyPressed(e -> player.processKey(e.getCode(), true));
+        scene.setOnKeyReleased(e -> player.processKey(e.getCode(), false));
 
-        AnimationTimer timer = new AnimationTimer() {
-            private long lastUpdate = -1 ;
-            @Override
-            public void handle(long now) {
-                long elapsedNanos = now - lastUpdate ;
-                if (lastUpdate < 0) {
-                    lastUpdate = now ;
-                    return ;
-                }
-                double elapsedSeconds = elapsedNanos / 1_000_000_000.0 ;
-                double deltaX = 0 ;
-                double deltaY = 0 ;
-                if (right) deltaX += speed ;
-                if (left) deltaX -= speed ;
-                if (down) deltaY += speed ;
-                if (up) deltaY -= speed ;
-                player.setX(clampRange(player.getX() + deltaX * elapsedSeconds, 0, pane.getWidth() - player.getWidth()));
-                player.setY(clampRange(player.getY() + deltaY * elapsedSeconds, 0, pane.getHeight() - player.getHeight()));
-                lastUpdate = now ;
-            }
-        };
+        
+        
+
 
         primaryStage.setScene(scene);
         primaryStage.show();
+        
+		enemyThread = new Thread(enemy);
+		enemyThread.start();
 
-        timer.start();
+        player.playerTimer.start();
     }
+    
+	@SuppressWarnings("deprecation")
+	@Override
+	public void stop(){
+		enemyThread.stop();
+	}
 
-    private double clampRange(double value, double min, double max) {
-        if (value < min) return min ;
-        if (value > max) return max ;
-        return value ;
-    }
-
-    private void processKey(KeyCode code, boolean on) {
-        switch (code) {
-        case A: 
-            left = on ;
-            break ;
-        case D: 
-            right = on ;
-            break ;
-        case W:
-            up = on ;
-            break ;
-        case S:
-            down = on ;
-            break ;
-        case UP: 
-        	shoot(player);
-        case LEFT:
-        	shoot(player);
-        case RIGHT: 
-        	shoot(player);
-        case DOWN:
-        	shoot(player);
-        default:
-            break ;
-        }
-    }
 
     private Pane createBackground() {
 
@@ -136,16 +96,31 @@ public class TestMap extends Application {
         pane.setMinSize(numTilesHoriz * tileSize, numTilesVert * tileSize);
         pane.setPrefSize(numTilesHoriz * tileSize, numTilesVert * tileSize);
         pane.setMaxSize(numTilesHoriz * tileSize, numTilesVert * tileSize);
-
-        for (Integer tile : filledTiles) {
+        
+        List<Integer> totalTilesList = sampleWithoutReplacement(totalTiles, numTilesHoriz * numTilesVert);
+        
+        gc.setFill(Color.DIMGRAY);
+        for (Integer tile: totalTilesList) {
             int x = (tile % numTilesHoriz) * tileSize ;
             int y = (tile / numTilesHoriz) * tileSize ;
             gc.fillRect(x, y, tileSize, tileSize);
+        }
+        gc.setFill(Color.rgb(130, 130, 130));
+        for (Integer tile : filledTiles) {
+            int x = (tile % numTilesHoriz) * tileSize ;
+            int y = (tile / numTilesHoriz) * tileSize ;
+            gc.fillRect(x, y, tileSize/7, tileSize/7);
         }
 
         return pane ;
     }
 
+    private double clampRange(double value, double min, double max) {
+        if (value < min) return min ;
+        if (value > max) return max ;
+        return value ;
+    }
+    
     private List<Integer> sampleWithoutReplacement(int sampleSize, int populationSize) {
         Random rng = new Random();
         List<Integer> population = new ArrayList<>();
@@ -157,9 +132,9 @@ public class TestMap extends Application {
         return sample;
     }
 
-    private void shoot(Rectangle who)
+    private void shoot(Player who)
     {
-    	Rectangle bullet = new Rectangle(who.getTranslateX() + 20, who.getTranslateY(), 5, 20);
+    	Rectangle bullet = new Rectangle(who.playerRect.getTranslateX() + 20, who.playerRect.getTranslateY(), 5, 20);
     	bullet.setFill(Color.BLACK);
     	pane.getChildren().add(bullet);
     }
