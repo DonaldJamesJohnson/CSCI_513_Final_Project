@@ -55,7 +55,6 @@ public class TestMap extends Application {
         pane.setClip(clip);
         pane.translateXProperty().bind(clip.xProperty().multiply(-1));
         pane.translateYProperty().bind(clip.yProperty().multiply(-1));
-        
 		enemy.addToPane(pane);
         
         // Player movement

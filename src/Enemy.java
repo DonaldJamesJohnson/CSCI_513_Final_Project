@@ -79,7 +79,7 @@ public class Enemy implements Runnable, Observer {
 	AnimationTimer enemyTimer;
 	int xMove;
 	int yMove;
-	int speed = 100;
+	double speed = .1;
 	
 	public Enemy(int scalingFactor){
 		for(int j = 0; j < 10; j++){
@@ -88,6 +88,7 @@ public class Enemy implements Runnable, Observer {
 			System.out.println("x: " + x);
 			System.out.println("y: " + y);
 			enemySprites[j] = new EnemySprite(x,y,scalingFactor);
+			enemySprites[j].setLineColor(enemySprites[j].circle, Color.INDIANRED);
 		}
 		this.radius = 10;
 		this.scalingFactor = scalingFactor;
