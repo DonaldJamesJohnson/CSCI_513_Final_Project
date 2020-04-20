@@ -79,7 +79,7 @@ public class Enemy implements Observer {
 	AnimationTimer enemyTimer;
 	double xMove;
 	double yMove;
-	double speed = 1;
+	double speed = 2;
 	
 	public Enemy(int scalingFactor){
 		int x = random.nextInt(50);
@@ -112,15 +112,9 @@ public class Enemy implements Observer {
                     return ;
                 }
                 double elapsedSeconds = elapsedNanos / 10000000.0;
-                //if (xMove > 0) xMove += speed ;
-                //else if (xMove < 0) xMove -= speed ;
-                //if (yMove > 0) xMove += speed ;
-                //else if (yMove < 0) xMove -= speed ;
                 enemySprite.setX(clampRange(enemySprite.circle.getCenterX() + (xMove * elapsedSeconds), 0, pane.getWidth() - enemySprite.circle.getRadius()));
-                //enemySprite.setX(xMove);
                 enemySprite.setY(clampRange(enemySprite.circle.getCenterY() + (yMove * elapsedSeconds), 0, pane.getHeight() - enemySprite.circle.getRadius()));
                 lastUpdate = now ;
-                //enemySprite.setY(yMove);
                 move();
             }
         };
@@ -143,15 +137,15 @@ public class Enemy implements Observer {
 			//System.out.println("enemy  position: " + enemySprite.circle.getCenterX() + ", " + enemySprite.circle.getCenterY());
     		double xDiff = playerPosition.getX() - enemySprite.circle.getCenterX();
     		//System.out.println("xDiff: " + xDiff);
-    		if (xDiff > radius) xMove = 1;
-    		else if (radius > xDiff) xMove = -1;
+    		if (xDiff > radius) xMove = speed;
+    		else if (radius > xDiff) xMove = speed * -1.0;
     		else xMove = 0;
     		//System.out.println("xMove: " + xMove);
     		// Move Y
     		double yDiff = playerPosition.getY() - (enemySprite.circle.getCenterY());
     		//System.out.println("yDiff: " + yDiff);
-    		if (yDiff > radius) yMove = 1;
-    		else if (radius > yDiff) yMove = -1;
+    		if (yDiff > radius) yMove = speed;
+    		else if (radius > yDiff) yMove = speed * -1.0;
     		else yMove = 0;
     		//System.out.println("yMove: " + yMove);
 	}
