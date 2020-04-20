@@ -28,7 +28,7 @@ public class CaveExplorer extends Application {
     Player player = new Player(20, 20, baseRect);
     
     Enemy enemy = new Enemy(tileSize);
-    Thread enemyThread;
+    Enemy enemy2 = new Enemy(tileSize);
     
 
     @Override
@@ -37,7 +37,10 @@ public class CaveExplorer extends Application {
         // Create player 
         pane.getChildren().add(player.playerRect);
 		player.addObserver(enemy);
+		player.addObserver(enemy2);
 		player.Timer(pane);
+		enemy.Timer(pane);
+		enemy2.Timer(pane);
         // Create scene
         Scene scene = new Scene(new BorderPane(pane), 800, 800);
         // Set clip for scene
@@ -56,6 +59,7 @@ public class CaveExplorer extends Application {
         pane.translateXProperty().bind(clip.xProperty().multiply(-1));
         pane.translateYProperty().bind(clip.yProperty().multiply(-1));
 		enemy.addToPane(pane);
+		enemy2.addToPane(pane);
         
         // Player movement
         scene.setOnKeyPressed(e -> player.processKey(e.getCode(), true));
@@ -67,18 +71,12 @@ public class CaveExplorer extends Application {
 
         primaryStage.setScene(scene);
         primaryStage.show();
-        
-		enemyThread = new Thread(enemy);
-		enemyThread.start();
 
         player.playerTimer.start();
+        enemy.enemyTimer.start();
+        enemy2.enemyTimer.start();
     }
-    
-	@SuppressWarnings("deprecation")
-	@Override
-	public void stop(){
-		enemyThread.stop();
-	}
+
 
 
     private Pane createBackground() {
