@@ -17,18 +17,19 @@ import javafx.stage.Stage;
 
 public class CaveExplorer extends Application {
 	// Set tile size and the horizontal and vertical size
-    private final int tileSize = 20;
-    private final int numTilesHoriz = 500;
-    private final int numTilesVert = 500;
-    private final int numFilledTiles = numTilesHoriz * numTilesVert / 2;
-    private final int totalTiles = numTilesHoriz * numTilesVert; 
+    CaveMap caveMap = new CaveMap();
+	
+    Pane pane = caveMap.createBackground();
+    Rectangle baseRect = new Rectangle(
+    		caveMap.getNumTilesHoriz() * caveMap.getTileSize() / 2, 
+    		caveMap.getNumTilesVert() * caveMap.getTileSize() / 2,
+    		20, 
+    		20 );
     
-    Pane pane = createBackground();
-    Rectangle baseRect = new Rectangle(numTilesHoriz*tileSize/2, numTilesVert*tileSize/2, 20, 20);
     Player player = new Player(20, 20, baseRect);
     
-    Enemy enemy = new Enemy(tileSize);
-    Enemy enemy2 = new Enemy(tileSize);
+    Enemy enemy = new Enemy(caveMap.getTileSize());
+    Enemy enemy2 = new Enemy(caveMap.getTileSize());
     
 
     @Override
@@ -65,10 +66,6 @@ public class CaveExplorer extends Application {
         scene.setOnKeyPressed(e -> player.processKey(e.getCode(), true));
         scene.setOnKeyReleased(e -> player.processKey(e.getCode(), false));
 
-        
-        
-
-
         primaryStage.setScene(scene);
         primaryStage.show();
 
@@ -77,56 +74,10 @@ public class CaveExplorer extends Application {
         enemy2.enemyTimer.start();
     }
 
-
-
-    private Pane createBackground() {
-
-        List<Integer> filledTiles = sampleWithoutReplacement(numFilledTiles, numTilesHoriz * numTilesVert);
-
-        Canvas canvas = new Canvas(numTilesHoriz * tileSize, numTilesVert * tileSize);
-        GraphicsContext gc = canvas.getGraphicsContext2D();
-        gc.setStroke(Color.BLACK);
-        gc.setFill(Color.DIMGRAY);
-
-        Pane pane = new Pane(canvas);
-
-        pane.setMinSize(numTilesHoriz * tileSize, numTilesVert * tileSize);
-        pane.setPrefSize(numTilesHoriz * tileSize, numTilesVert * tileSize);
-        pane.setMaxSize(numTilesHoriz * tileSize, numTilesVert * tileSize);
-        
-        List<Integer> totalTilesList = sampleWithoutReplacement(totalTiles, numTilesHoriz * numTilesVert);
-        
-        gc.setFill(Color.DIMGRAY);
-        for (Integer tile: totalTilesList) {
-            int x = (tile % numTilesHoriz) * tileSize ;
-            int y = (tile / numTilesHoriz) * tileSize ;
-            gc.fillRect(x, y, tileSize, tileSize);
-        }
-        gc.setFill(Color.rgb(130, 130, 130));
-        for (Integer tile : filledTiles) {
-            int x = (tile % numTilesHoriz) * tileSize ;
-            int y = (tile / numTilesHoriz) * tileSize ;
-            gc.fillRect(x, y, tileSize/7, tileSize/7);
-        }
-
-        return pane ;
-    }
-
     private double clampRange(double value, double min, double max) {
         if (value < min) return min ;
         if (value > max) return max ;
         return value ;
-    }
-    
-    private List<Integer> sampleWithoutReplacement(int sampleSize, int populationSize) {
-        Random rng = new Random();
-        List<Integer> population = new ArrayList<>();
-        for (int i = 0 ; i < populationSize; i++) 
-            population.add(i);
-        List<Integer> sample = new ArrayList<>();
-        for (int i = 0 ; i < sampleSize ; i++) 
-            sample.add(population.remove(rng.nextInt(population.size())));
-        return sample;
     }
 
     private void shoot(Player who)
