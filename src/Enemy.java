@@ -38,11 +38,11 @@ class EnemySprite{
 		return circle;
 	}
 	
-	void setX(int x){
+	void setX(double x){
 		circle.setCenterX(x);
 	}
 	
-	void setY(int y){
+	void setY(double y){
 		circle.setCenterY(y);
 	}
 	
@@ -59,56 +59,51 @@ class EnemySprite{
 		circle.setFill(color);
 	}
 	
-	public void setPositionX(int x){
+	public void setPositionX(double x){
 		circle.setCenterX(x*scalingFactor + (scalingFactor/2));
 	}
 	
-	public void setPositionY(int y){
+	public void setPositionY(double y ){
 		circle.setCenterY(y*scalingFactor + (scalingFactor/2));
 	}
 }
 
-public class Enemy implements Runnable, Observer {
+public class Enemy implements Observer {
 	
 	Boolean running = true;
 	int radius;
 	Random random = new Random();
 	int scalingFactor;
-	EnemySprite[] enemySprites = new EnemySprite[10];
+	EnemySprite enemySprite;
 	Point playerPosition = new Point();
 	AnimationTimer enemyTimer;
-	int xMove;
-	int yMove;
-	double speed = .1;
+	double xMove;
+	double yMove;
+	double speed = 1;
 	
 	public Enemy(int scalingFactor){
-		for(int j = 0; j < 10; j++){
-			int x = random.nextInt(50);
-			int y = random.nextInt(50);	
-			System.out.println("x: " + x);
-			System.out.println("y: " + y);
-			enemySprites[j] = new EnemySprite(x,y,scalingFactor);
-			enemySprites[j].setLineColor(enemySprites[j].circle, Color.INDIANRED);
-		}
+		int x = random.nextInt(50);
+		int y = random.nextInt(50);	
+		System.out.println("x: " + x);
+		System.out.println("y: " + y);
+		enemySprite = new EnemySprite(x,y,scalingFactor);
+		enemySprite.setLineColor(enemySprite.circle, Color.INDIANRED);
 		this.radius = 10;
 		this.scalingFactor = scalingFactor;
 	}
 	
 	public void addToPane(Pane pane){
-		for(EnemySprite enemySprite: enemySprites){
-			
-			Circle circle = enemySprite.getCircle();
-			enemySprite.setPositionX(random.nextInt(50));
-			enemySprite.setPositionY(random.nextInt(50));
-			System.out.println("Adding circle to pane: " + circle.getCenterX() + " " + circle.getCenterY() + " " + radius);
-			pane.getChildren().add(circle);
-		}
+		Circle circle = enemySprite.getCircle();
+		enemySprite.setPositionX(random.nextInt(50));
+		enemySprite.setPositionY(random.nextInt(50));
+		System.out.println("Adding circle to pane: " + circle.getCenterX() + " " + circle.getCenterY() + " " + radius);
+		pane.getChildren().add(circle);
 	}
 	
 	public void Timer(Pane pane)
 	{
 		enemyTimer = new AnimationTimer() {
-            private long lastUpdate = -1 ;
+            private long lastUpdate = 0 ;
             @Override
             public void handle(long now) {
                 long elapsedNanos = now - lastUpdate ;
@@ -116,18 +111,17 @@ public class Enemy implements Runnable, Observer {
                     lastUpdate = now ;
                     return ;
                 }
-                double elapsedSeconds = elapsedNanos / 1_000_000_000.0 ;
-                double deltaX = 0 ;
-                double deltaY = 0 ;
-                for(EnemySprite enemySprite: enemySprites){
-                if (xMove > 0) deltaX += speed ;
-                if (xMove < 0) deltaX -= speed ;
-                if (yMove > 0) deltaY += speed ;
-                if (yMove < 0) deltaY -= speed ;
-                enemySprite.circle.setCenterX(clampRange(enemySprite.circle.getCenterX() + deltaX * elapsedSeconds, 0, pane.getWidth() - enemySprite.circle.getRadius()*2));
-                enemySprite.circle.setCenterY(clampRange(enemySprite.circle.getCenterY() + deltaY * elapsedSeconds, 0, pane.getHeight() - enemySprite.circle.getRadius()*2));
+                double elapsedSeconds = elapsedNanos / 10000000.0;
+                //if (xMove > 0) xMove += speed ;
+                //else if (xMove < 0) xMove -= speed ;
+                //if (yMove > 0) xMove += speed ;
+                //else if (yMove < 0) xMove -= speed ;
+                enemySprite.setX(clampRange(enemySprite.circle.getCenterX() + (xMove * elapsedSeconds), 0, pane.getWidth() - enemySprite.circle.getRadius()));
+                //enemySprite.setX(xMove);
+                enemySprite.setY(clampRange(enemySprite.circle.getCenterY() + (yMove * elapsedSeconds), 0, pane.getHeight() - enemySprite.circle.getRadius()));
                 lastUpdate = now ;
-                }
+                //enemySprite.setY(yMove);
+                move();
             }
         };
 	}
@@ -136,62 +130,36 @@ public class Enemy implements Runnable, Observer {
 	public void update(Observable o, Object arg) {
 		if (o instanceof Player)
 		{
-			System.out.println("Moving");
 			playerPosition.x = (int)((Player)o).getPlayerLocationX();
-			playerPosition.y = (int)((Player)o).getPlayerLocationY();
-			move();
+			playerPosition.y = (int)((Player)o).getPlayerLocationY();	
 		}
 		
 	}	
 
 	
 	public void move() {
-		for(EnemySprite enemySprite: enemySprites){
     		// Move X
-			System.out.println("player position: " + playerPosition.getX() + ", " + playerPosition.getY());
-			System.out.println("enemy  position: " + enemySprite.circle.getCenterX() + ", " + enemySprite.circle.getCenterY());
+			//System.out.println("player position: " + playerPosition.getX() + ", " + playerPosition.getY());
+			//System.out.println("enemy  position: " + enemySprite.circle.getCenterX() + ", " + enemySprite.circle.getCenterY());
     		double xDiff = playerPosition.getX() - enemySprite.circle.getCenterX();
-    		System.out.println("xDiff: " + xDiff);
-
-    		if (xDiff > radius) xMove = (int) (enemySprite.circle.getCenterX() + 5);
-    		else if (radius > xDiff) xMove = (int) (enemySprite.circle.getCenterX()  - 5);
+    		//System.out.println("xDiff: " + xDiff);
+    		if (xDiff > radius) xMove = 1;
+    		else if (radius > xDiff) xMove = -1;
     		else xMove = 0;
-    		enemySprite.setX(xMove);
-    		System.out.println("xMove: " + enemySprite.getX());
+    		//System.out.println("xMove: " + xMove);
     		// Move Y
     		double yDiff = playerPosition.getY() - (enemySprite.circle.getCenterY());
-    		System.out.println("yDiff: " + yDiff);
-    		if (yDiff > radius) yMove = (int) (enemySprite.circle.getCenterY()  + 5);
-    		else if (radius > yDiff) yMove = (int) (enemySprite.circle.getCenterY()  - 5);
+    		//System.out.println("yDiff: " + yDiff);
+    		if (yDiff > radius) yMove = 1;
+    		else if (radius > yDiff) yMove = -1;
     		else yMove = 0;
-    		
-    		enemySprite.setY(yMove);
-    		System.out.println("yMove: " + enemySprite.getY());
-    	}
+    		//System.out.println("yMove: " + yMove);
 	}
 	
     private double clampRange(double value, double min, double max) {
         if (value < min) return min ;
         if (value > max) return max ;
         return value ;
-    }
-
-			
-	@Override
-    public void run() {
-		
-	  
-      while (true) {
-    	try {
-			Thread.sleep(100);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-    	
-    	move();
-    	
-      }
-      
     }
 
 }
