@@ -8,6 +8,19 @@ import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 
 public class CaveMap {
+	//setting it up as a singleton
+	private CaveMap() { }
+	
+	private static CaveMap CaveMapInstance;
+	public static CaveMap getCaveMap() {
+		try{
+            CaveMapInstance = new CaveMap();
+        }catch (Exception e) {
+            throw new RuntimeException("Exception occured in creating singleton instance");
+        }
+		return CaveMapInstance;
+	}
+	
 	private final int tileSize = 20;
     private final int numTilesHoriz = 500;
     private final int numTilesVert = 500;
@@ -15,7 +28,8 @@ public class CaveMap {
     private final int totalTiles = numTilesHoriz * numTilesVert; 
     
     public int getTileSize() { return tileSize; }
-    public int getNumTilesHoriz() { return numTilesHoriz; }
+    
+	public int getNumTilesHoriz() { return numTilesHoriz; }
     public int getNumTilesVert() { return numTilesVert; }
     public int getNumFilledTiles() { return numFilledTiles; }
     public int getTotalTiles() { return totalTiles; }

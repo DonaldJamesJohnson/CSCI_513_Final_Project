@@ -16,9 +16,10 @@ import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
 
 public class CaveExplorer extends Application {
+	//getting instance of the CaveMap
+    CaveMap caveMap = CaveMap.getCaveMap();
+
 	// Set tile size and the horizontal and vertical size
-    CaveMap caveMap = new CaveMap();
-	
     Pane pane = caveMap.createBackground();
     Rectangle baseRect = new Rectangle(
     		caveMap.getNumTilesHoriz() * caveMap.getTileSize() / 2, 
