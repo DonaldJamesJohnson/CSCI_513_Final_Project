@@ -76,10 +76,10 @@ public class Enemy implements Observer {
 	int scalingFactor;
 	EnemySprite enemySprite;
 	Point playerPosition = new Point();
-	AnimationTimer enemyTimer;
+//	AnimationTimer enemyTimer;
 	double xMove;
 	double yMove;
-	double speed = 2;
+	double speed = 200;
 	
 	public Enemy(int scalingFactor){
 		int x = random.nextInt(50);
@@ -99,7 +99,7 @@ public class Enemy implements Observer {
 		System.out.println("Adding circle to pane: " + circle.getCenterX() + " " + circle.getCenterY() + " " + radius);
 		pane.getChildren().add(circle);
 	}
-	
+	/*
 	public void Timer(Pane pane)
 	{
 		enemyTimer = new AnimationTimer() {
@@ -112,13 +112,11 @@ public class Enemy implements Observer {
                     return ;
                 }
                 double elapsedSeconds = elapsedNanos / 10000000.0;
-                enemySprite.setX(clampRange(enemySprite.circle.getCenterX() + (xMove * elapsedSeconds), 0, pane.getWidth() - enemySprite.circle.getRadius()));
-                enemySprite.setY(clampRange(enemySprite.circle.getCenterY() + (yMove * elapsedSeconds), 0, pane.getHeight() - enemySprite.circle.getRadius()));
-                lastUpdate = now ;
-                move();
+
             }
         };
 	}
+	*/
 	
 	@Override
 	public void update(Observable o, Object arg) {
@@ -133,21 +131,15 @@ public class Enemy implements Observer {
 	
 	public void move() {
     		// Move X
-			//System.out.println("player position: " + playerPosition.getX() + ", " + playerPosition.getY());
-			//System.out.println("enemy  position: " + enemySprite.circle.getCenterX() + ", " + enemySprite.circle.getCenterY());
     		double xDiff = playerPosition.getX() - enemySprite.circle.getCenterX();
-    		//System.out.println("xDiff: " + xDiff);
     		if (xDiff > radius) xMove = speed;
     		else if (radius > xDiff) xMove = speed * -1.0;
     		else xMove = 0;
-    		//System.out.println("xMove: " + xMove);
     		// Move Y
     		double yDiff = playerPosition.getY() - (enemySprite.circle.getCenterY());
-    		//System.out.println("yDiff: " + yDiff);
     		if (yDiff > radius) yMove = speed;
     		else if (radius > yDiff) yMove = speed * -1.0;
     		else yMove = 0;
-    		//System.out.println("yMove: " + yMove);
 	}
 	
     private double clampRange(double value, double min, double max) {
