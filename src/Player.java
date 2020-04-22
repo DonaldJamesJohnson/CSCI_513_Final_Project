@@ -6,6 +6,7 @@
  * 			Instances of this class are observed by instances of Enemy. 
  */
 
+import java.util.List;
 import java.util.Observable;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
@@ -13,6 +14,7 @@ import javafx.scene.shape.Rectangle;
 public class Player extends Observable
 {
     Rectangle playerRect = new Rectangle();
+    WeaponBehavior wep;
     int speed = 500;
     int shootSpeed = 100;
     public boolean up ;
@@ -42,6 +44,16 @@ public class Player extends Observable
 	public double getPlayerLocationY() 
 	{
 		return playerRect.getY();
+	}
+	
+	public void setWeaponBehavior(WeaponBehavior wb)
+	{
+		wep = wb;
+	}
+	
+	public List<Bullet> performShoot(int xdir, int ydir)
+	{
+		return wep.shoot(xdir, ydir, getPlayerLocationX() + 10, getPlayerLocationY() + 10);
 	}
 		
 	public void move() {

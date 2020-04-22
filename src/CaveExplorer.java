@@ -1,6 +1,5 @@
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
 import javafx.beans.binding.Bindings;
@@ -8,7 +7,6 @@ import javafx.scene.Scene;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
-import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
 
@@ -33,28 +31,11 @@ public class CaveExplorer extends Application {
         // Create player 
         pane.getChildren().add(player.playerRect);
 		player.addObserver(enemy);
-		//player.addObserver(enemy2);
-		//enemy.Timer(pane);
-		//enemy2.Timer(pane);
+		player.setWeaponBehavior(new AllAroundShotWeapon());
         // Create scene
         Scene scene = new Scene(new BorderPane(pane), 800, 800);
         // Set clip for scene
-        Rectangle clip = new Rectangle();
-        clip.widthProperty().bind(scene.widthProperty());
-        clip.heightProperty().bind(scene.heightProperty());
-
-        clip.xProperty().bind(Bindings.createDoubleBinding(
-                () -> clampRange(player.playerRect.getX() - scene.getWidth() / 2, 0, pane.getWidth() - scene.getWidth()), 
-                player.playerRect.xProperty(), scene.widthProperty()));
-        clip.yProperty().bind(Bindings.createDoubleBinding(
-                () -> clampRange(player.playerRect.getY() - scene.getHeight() / 2, 0, pane.getHeight() - scene.getHeight()), 
-                player.playerRect.yProperty(), scene.heightProperty()));
-
-        pane.setClip(clip);
-        pane.translateXProperty().bind(clip.xProperty().multiply(-1));
-        pane.translateYProperty().bind(clip.yProperty().multiply(-1));
-		pane.getChildren().add(enemy.enemySprite.circle);
-		//enemy2.addToPane(pane);
+        setClip(scene);
 		
 		AnimationTimer timer = new AnimationTimer() {
             private long lastUpdate = 0 ;
@@ -68,8 +49,6 @@ public class CaveExplorer extends Application {
                 double elapsedSeconds = elapsedNanos / 1_000_000_000.0 ;
                 double deltaX = 0 ;
                 double deltaY = 0 ;
-                double shootDX = 0;
-                double shootDY = 0;
                 if (player.right) deltaX += player.speed ;
                 if (player.left) deltaX -= player.speed ;
                 if (player.down) deltaY += player.speed ;
@@ -79,15 +58,15 @@ public class CaveExplorer extends Application {
     	    	
                 enemy.enemySprite.setX(clampRange(enemy.enemySprite.circle.getCenterX() + (enemy.xMove * elapsedSeconds), 0, pane.getWidth() - enemy.enemySprite.circle.getRadius()));
                 enemy.enemySprite.setY(clampRange(enemy.enemySprite.circle.getCenterY() + (enemy.yMove * elapsedSeconds), 0, pane.getHeight() - enemy.enemySprite.circle.getRadius()));
-                enemy.move();
+                enemy.move();                              	
                 
                 if (!bullets.isEmpty())
                 {
                     for(Bullet b : bullets) {
-                    	if (b.direction == "up") b.moveUp();
-                    	if (b.direction == "down") b.moveDown();
-                    	if (b.direction == "left") b.moveLeft();
-                    	if (b.direction == "right") b.moveRight();
+                    	if (b.yDirection == -1) b.moveUp();
+                    	if (b.yDirection == 1) b.moveDown();
+                    	if (b.xDirection == -2) b.moveLeft();
+                    	if (b.xDirection == 2) b.moveRight();
                     	if (b.getBoundsInParent().intersects(enemy.enemySprite.circle.getBoundsInParent())) pane.getChildren().remove(enemy.enemySprite.circle);
                     }
                 }
@@ -103,9 +82,6 @@ public class CaveExplorer extends Application {
         primaryStage.show();
         
         timer.start();
-       // player.playerTimer.start();
-       // enemy.enemyTimer.start();
-       // enemy2.enemyTimer.start();
     }
 
 
@@ -130,21 +106,32 @@ public class CaveExplorer extends Application {
             break ;
 
         case UP: 
-        	shoot("up");
-        	break;
-        case LEFT:
-        	shoot("left");
-        	break;
-        case RIGHT: 
-        	shoot("right");
+        	shooting(0, -1);
         	break;
         case DOWN:
-        	shoot("down");
+        	shooting(0, 1);
+        	break;
+        case LEFT:
+        	shooting(-2, 0);
+        	break;
+        case RIGHT: 
+        	shooting(2, 0);
         	break;
         	
         default:
             break ;
         }
+    }
+    
+    private void shooting(int xdirection, int ydirection)
+    {
+    	List<Bullet> b = new ArrayList<Bullet>();
+    	b = player.performShoot(xdirection, ydirection);
+    	for (Bullet bullet : b) 
+    	{
+    		bullets.add(bullet);
+        	pane.getChildren().add(bullet);
+    	}
     }
 
 
@@ -153,51 +140,26 @@ public class CaveExplorer extends Application {
         if (value > max) return max ;
         return value ;
     }
+    
+    private void setClip(Scene scene)
+    {
+        Rectangle clip = new Rectangle();
+        clip.widthProperty().bind(scene.widthProperty());
+        clip.heightProperty().bind(scene.heightProperty());
+
+        clip.xProperty().bind(Bindings.createDoubleBinding(
+                () -> clampRange(player.playerRect.getX() - scene.getWidth() / 2, 0, pane.getWidth() - scene.getWidth()), 
+                player.playerRect.xProperty(), scene.widthProperty()));
+        clip.yProperty().bind(Bindings.createDoubleBinding(
+                () -> clampRange(player.playerRect.getY() - scene.getHeight() / 2, 0, pane.getHeight() - scene.getHeight()), 
+                player.playerRect.yProperty(), scene.heightProperty()));
+
+        pane.setClip(clip);
+        pane.translateXProperty().bind(clip.xProperty().multiply(-1));
+        pane.translateYProperty().bind(clip.yProperty().multiply(-1));
+		pane.getChildren().add(enemy.enemySprite.circle);
+    }
     public static void main(String[] args) {
         launch(args);
-    }
-    
-    
-    private void shoot(String direction)
-    {
-    	Bullet b = new Bullet(player.getPlayerLocationX() + 10, player.getPlayerLocationY() + 10, 5, 5, direction, Color.BLACK);
-    	bullets.add(b);
-    	pane.getChildren().add(b);
-    }
-    
-    
-    
-    private static class Bullet extends Rectangle {
-    	final String direction;
-    	boolean dead = false;
-    	
-    	Bullet(double x, double y, double w, double h, String dir, Color color)
-    	{
-    		super(w, h, color);
-    		this.direction = dir;
-    		setTranslateX(x);
-    		setTranslateY(y);    	
-    	}
-    	
-		void moveLeft()
-		{
-			setTranslateX(getTranslateX() - 1);
-		}
-		
-		void moveRight()
-		{
-			setTranslateX(getTranslateX() + 1);
-		}
-		
-		void moveUp()
-		{
-			setTranslateY(getTranslateY() - 1);
-		}
-		
-		void moveDown()
-		{
-			setTranslateY(getTranslateY() + 1);
-		}
-		
     }
 }
