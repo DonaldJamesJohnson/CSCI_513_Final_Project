@@ -20,8 +20,9 @@ public class CaveExplorer extends Application {
 	//getting instance of the CaveMap
     CaveMap caveMap = CaveMap.getCaveMap();
 
-    //setting up the powerupfactory
+    //setting up the factories
     PowerUpFactory powerUpFactory = new PowerUpFactory();//caveMap.getNumTilesHoriz(), caveMap.getTileSize());
+    EnemyFactory enemyFactory = new EnemyFactory();
 
 	// Set tile size and the horizontal and vertical size
     Pane pane = caveMap.createBackground();
@@ -39,8 +40,8 @@ public class CaveExplorer extends Application {
 
     Player player = new Player(20, 20, baseRect);
     
-    Enemy enemy = new Enemy(caveMap.getTileSize());
-    Enemy enemy2 = new Enemy(caveMap.getTileSize());
+    Enemy enemy = enemyFactory.getEnemy(caveMap.getTileSize());
+    Enemy enemy2 = enemyFactory.getEnemy(caveMap.getTileSize());
 
     PowerUp power1 = powerUpFactory.getPowerUp("SpeedBoost", 100, 100, speedRect);
     
