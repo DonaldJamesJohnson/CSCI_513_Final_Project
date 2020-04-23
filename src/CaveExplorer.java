@@ -19,6 +19,9 @@ public class CaveExplorer extends Application {
 	//getting instance of the CaveMap
     CaveMap caveMap = CaveMap.getCaveMap();
 
+    //setting up the powerupfactory
+    PowerUpFactory powerUpFactory = new PowerUpFactory();
+
 	// Set tile size and the horizontal and vertical size
     Pane pane = caveMap.createBackground();
     Rectangle baseRect = new Rectangle(
@@ -31,6 +34,8 @@ public class CaveExplorer extends Application {
     
     Enemy enemy = new Enemy(caveMap.getTileSize());
     Enemy enemy2 = new Enemy(caveMap.getTileSize());
+
+    PowerUp power1 = powerUpFactory.getPowerUp("SpeedBoost", 100, 100, baseRect);
     
 
     @Override
@@ -38,6 +43,7 @@ public class CaveExplorer extends Application {
     	// Create pane 
         // Create player 
         pane.getChildren().add(player.playerRect);
+        pane.getChildren().add(power1.getPowerUpShape());
 		player.addObserver(enemy);
 		player.addObserver(enemy2);
 		player.Timer(pane);
