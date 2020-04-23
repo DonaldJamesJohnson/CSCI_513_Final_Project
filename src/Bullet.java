@@ -17,22 +17,22 @@ public class Bullet extends Rectangle {
     	
 		void moveLeft()
 		{
-			setTranslateX(getTranslateX() - 1);
+			setTranslateX(getTranslateX() - 5);
 		}
 		
 		void moveRight()
 		{
-			setTranslateX(getTranslateX() + 1);
+			setTranslateX(getTranslateX() + 5);
 		}
 		
 		void moveUp()
 		{
-			setTranslateY(getTranslateY() - 1);
+			setTranslateY(getTranslateY() - 5);
 		}
 		
 		void moveDown()
 		{
-			setTranslateY(getTranslateY() + 1);
+			setTranslateY(getTranslateY() + 5);
 		}
 		
     }

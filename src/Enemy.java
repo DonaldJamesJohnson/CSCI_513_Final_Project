@@ -9,13 +9,7 @@
 import java.awt.Point;
 import java.util.Observable;
 import java.util.Observer;
-
-
 import java.util.Random;
-
-import javafx.animation.AnimationTimer;
-import javafx.collections.ObservableList;
-import javafx.scene.Node;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
@@ -71,6 +65,7 @@ class EnemySprite{
 public class Enemy implements Observer {
 	int maxHealth;
 	int currentHealth;
+	boolean dead;
 	Boolean running = true;
 	int radius;
 	Random random = new Random();
@@ -88,11 +83,12 @@ public class Enemy implements Observer {
 		System.out.println("x: " + x);
 		System.out.println("y: " + y);
 		enemySprite = new EnemySprite(x,y,scalingFactor);
-		enemySprite.setLineColor(enemySprite.circle, Color.rgb(200, 200, 0));
+		enemySprite.setLineColor(enemySprite.circle, Color.rgb(100, 200, 0));
 		this.radius = 10;
 		this.scalingFactor = scalingFactor;
 		this.maxHealth = h;
 		this.currentHealth = maxHealth;
+		this.dead = false;
 	}
 	
 	public void addToPane(Pane pane){
@@ -143,14 +139,7 @@ public class Enemy implements Observer {
 		}
 		else if (currentHealth >= maxHealth * 0.6)
 		{
-			enemySprite.setLineColor(enemySprite.circle, Color.rgb(200, 200, 0));
+			enemySprite.setLineColor(enemySprite.circle, Color.rgb(100, 200, 0));
 		}		
 	}
-	
-    private double clampRange(double value, double min, double max) {
-        if (value < min) return min ;
-        if (value > max) return max ;
-        return value ;
-    }
-
 }
