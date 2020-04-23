@@ -14,6 +14,10 @@ public class CaveExplorer extends Application {
 	//getting instance of the CaveMap
     CaveMap caveMap = CaveMap.getCaveMap();
 
+    //setting up the factories
+    PowerUpFactory powerUpFactory = new PowerUpFactory();//caveMap.getNumTilesHoriz(), caveMap.getTileSize());
+    EnemyFactory enemyFactory = new EnemyFactory();
+
 	// Set tile size and the horizontal and vertical size
     Pane pane = caveMap.createBackground();
     Rectangle baseRect = new Rectangle(
@@ -21,16 +25,28 @@ public class CaveExplorer extends Application {
     		caveMap.getNumTilesVert() * caveMap.getTileSize() / 2,
     		20, 
     		20 );
-    
+
+    Rectangle speedRect = new Rectangle(
+            caveMap.getNumTilesHoriz() * caveMap.getTileSize() / 2,
+            caveMap.getNumTilesVert() * caveMap.getTileSize() / 2,
+            20,
+            20 );
+
     Player player = new Player(20, 20, baseRect);
     
-    Enemy enemy = new Enemy(caveMap.getTileSize());
-    List<Bullet> bullets = new ArrayList<Bullet>();
-    
+
+    Enemy enemy = enemyFactory.getEnemy(caveMap.getTileSize());
+    Enemy enemy2 = enemyFactory.getEnemy(caveMap.getTileSize());
+
+    PowerUp power1 = powerUpFactory.getPowerUp("SpeedBoost", 100, 100, speedRect);
+
+
+    List<Bullet> bullets = new ArrayList<Bullet>();    
     public void start(Stage primaryStage) {
     	// Create pane 
         // Create player 
         pane.getChildren().add(player.playerRect);
+        pane.getChildren().add(power1.getPowerUpShape());
 		player.addObserver(enemy);
 		player.setWeaponBehavior(new AllAroundShotWeapon());
         // Create scene
