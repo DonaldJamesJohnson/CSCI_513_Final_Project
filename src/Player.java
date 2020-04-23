@@ -19,7 +19,7 @@ public class Player extends Observable
     int currentHealth;
     boolean dead;
     int speed = 500;
-    int shootSpeed = 100;
+    int shootSpeed = 500;
     public boolean up ;
     public boolean down ;
     public boolean left ;
@@ -59,7 +59,7 @@ public class Player extends Observable
 	public void setHealth(int diff)
 	{
 		currentHealth += diff;
-		System.out.println(currentHealth);
+		//System.out.println("Health: " + currentHealth);
 		setColor();
 	}
 	
