@@ -69,7 +69,8 @@ class EnemySprite{
 }
 
 public class Enemy implements Observer {
-	
+	int maxHealth;
+	int currentHealth;
 	Boolean running = true;
 	int radius;
 	Random random = new Random();
@@ -81,15 +82,17 @@ public class Enemy implements Observer {
 	double yMove;
 	double speed = 200;
 	
-	public Enemy(int scalingFactor){
+	public Enemy(int scalingFactor, int h){
 		int x = random.nextInt(50);
 		int y = random.nextInt(50);	
 		System.out.println("x: " + x);
 		System.out.println("y: " + y);
 		enemySprite = new EnemySprite(x,y,scalingFactor);
-		enemySprite.setLineColor(enemySprite.circle, Color.INDIANRED);
+		enemySprite.setLineColor(enemySprite.circle, Color.rgb(200, 200, 0));
 		this.radius = 10;
 		this.scalingFactor = scalingFactor;
+		this.maxHealth = h;
+		this.currentHealth = maxHealth;
 	}
 	
 	public void addToPane(Pane pane){
@@ -99,24 +102,6 @@ public class Enemy implements Observer {
 		System.out.println("Adding circle to pane: " + circle.getCenterX() + " " + circle.getCenterY() + " " + radius);
 		pane.getChildren().add(circle);
 	}
-	/*
-	public void Timer(Pane pane)
-	{
-		enemyTimer = new AnimationTimer() {
-            private long lastUpdate = 0 ;
-            @Override
-            public void handle(long now) {
-                long elapsedNanos = now - lastUpdate ;
-                if (lastUpdate < 0) {
-                    lastUpdate = now ;
-                    return ;
-                }
-                double elapsedSeconds = elapsedNanos / 10000000.0;
-
-            }
-        };
-	}
-	*/
 	
 	@Override
 	public void update(Observable o, Object arg) {
@@ -128,7 +113,6 @@ public class Enemy implements Observer {
 		
 	}	
 
-	
 	public void move() {
     		// Move X
     		double xDiff = playerPosition.getX() - enemySprite.circle.getCenterX();
@@ -140,6 +124,27 @@ public class Enemy implements Observer {
     		if (yDiff > radius) yMove = speed;
     		else if (radius > yDiff) yMove = speed * -1.0;
     		else yMove = 0;
+	}
+	
+	public void setHealth(int diff)
+	{
+		currentHealth += diff;
+		setColor();
+	}
+	
+	public void setColor() {
+		if (currentHealth < maxHealth * 0.3)
+		{
+			enemySprite.setLineColor(enemySprite.circle, Color.rgb(200, 40, 0));
+		}
+		else if (currentHealth < maxHealth * 0.6)
+		{
+			enemySprite.setLineColor(enemySprite.circle, Color.rgb(255, 180, 0));
+		}
+		else if (currentHealth >= maxHealth * 0.6)
+		{
+			enemySprite.setLineColor(enemySprite.circle, Color.rgb(200, 200, 0));
+		}		
 	}
 	
     private double clampRange(double value, double min, double max) {

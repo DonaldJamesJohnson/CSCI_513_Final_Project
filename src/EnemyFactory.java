@@ -1,5 +1,5 @@
 public class EnemyFactory {
-    public Enemy getEnemy(int scale) {
-        return new Enemy(scale);
+    public Enemy getEnemy(int scale, int health) {
+        return new Enemy(scale, health);
     }
 }
