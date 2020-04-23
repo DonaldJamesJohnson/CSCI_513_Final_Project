@@ -12,6 +12,7 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.Polygon;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
 
@@ -20,7 +21,7 @@ public class CaveExplorer extends Application {
     CaveMap caveMap = CaveMap.getCaveMap();
 
     //setting up the powerupfactory
-    PowerUpFactory powerUpFactory = new PowerUpFactory();
+    PowerUpFactory powerUpFactory = new PowerUpFactory();//caveMap.getNumTilesHoriz(), caveMap.getTileSize());
 
 	// Set tile size and the horizontal and vertical size
     Pane pane = caveMap.createBackground();
@@ -29,13 +30,19 @@ public class CaveExplorer extends Application {
     		caveMap.getNumTilesVert() * caveMap.getTileSize() / 2,
     		20, 
     		20 );
-    
+
+    Rectangle speedRect = new Rectangle(
+            caveMap.getNumTilesHoriz() * caveMap.getTileSize() / 2,
+            caveMap.getNumTilesVert() * caveMap.getTileSize() / 2,
+            20,
+            20 );
+
     Player player = new Player(20, 20, baseRect);
     
     Enemy enemy = new Enemy(caveMap.getTileSize());
     Enemy enemy2 = new Enemy(caveMap.getTileSize());
 
-    PowerUp power1 = powerUpFactory.getPowerUp("SpeedBoost", 100, 100, baseRect);
+    PowerUp power1 = powerUpFactory.getPowerUp("SpeedBoost", 100, 100, speedRect);
     
 
     @Override
