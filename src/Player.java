@@ -15,6 +15,9 @@ public class Player extends Observable
 {
     Rectangle playerRect = new Rectangle();
     WeaponBehavior wep;
+    int maxHealth;
+    int currentHealth;
+    boolean dead;
     int speed = 500;
     int shootSpeed = 100;
     public boolean up ;
@@ -27,11 +30,13 @@ public class Player extends Observable
     public boolean shootLeft;
     public boolean shootRight;
 	
-	public Player(int X, int Y, Rectangle r) 
+	public Player(int X, int Y, Rectangle r, int h) 
 	{
+        maxHealth = h;
+        currentHealth = maxHealth;
 		playerRect = r;
         playerRect.setStroke(Color.BLACK);
-        playerRect.setFill(Color.rgb(80, 80, 160, 1));
+        playerRect.setFill(Color.rgb(80, 80, 160));
         playerRect.setX(X);
         playerRect.setY(Y);
 	}
@@ -49,6 +54,34 @@ public class Player extends Observable
 	public void setWeaponBehavior(WeaponBehavior wb)
 	{
 		wep = wb;
+	}
+	
+	public void setHealth(int diff)
+	{
+		currentHealth += diff;
+		System.out.println(currentHealth);
+		setColor();
+	}
+	
+	public void setColor() {
+		if (currentHealth <= 0) 
+		{
+			currentHealth = 0;
+			dead = true;
+			playerRect.setFill(Color.BLACK);
+		}
+		else if (currentHealth < maxHealth * 0.3)
+		{
+			playerRect.setFill(Color.rgb(160, 80, 80));
+		}
+		else if (currentHealth < maxHealth * 0.6)
+		{
+			playerRect.setFill(Color.rgb(160, 160, 0));
+		}
+		else if (currentHealth >= maxHealth * 0.6)
+		{
+			playerRect.setFill(Color.rgb(80, 80, 160));
+		}		
 	}
 	
 	public List<Bullet> performShoot(int xdir, int ydir)

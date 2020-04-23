@@ -32,11 +32,11 @@ public class CaveExplorer extends Application {
             20,
             20 );
 
-    Player player = new Player(20, 20, baseRect);
+    Player player = new Player(2000, 2000, baseRect, 10000);
     
 
-    Enemy enemy = enemyFactory.getEnemy(caveMap.getTileSize());
-    Enemy enemy2 = enemyFactory.getEnemy(caveMap.getTileSize());
+    Enemy enemy = enemyFactory.getEnemy(caveMap.getTileSize(), 300);
+    Enemy enemy2 = enemyFactory.getEnemy(caveMap.getTileSize(), 300);
 
     PowerUp power1 = powerUpFactory.getPowerUp("SpeedBoost", 100, 100, speedRect);
 
@@ -48,7 +48,7 @@ public class CaveExplorer extends Application {
         pane.getChildren().add(player.playerRect);
         pane.getChildren().add(power1.getPowerUpShape());
 		player.addObserver(enemy);
-		player.setWeaponBehavior(new AllAroundShotWeapon());
+		player.setWeaponBehavior(new BaseWeapon());
         // Create scene
         Scene scene = new Scene(new BorderPane(pane), 800, 800);
         // Set clip for scene
@@ -75,7 +75,9 @@ public class CaveExplorer extends Application {
     	    	
                 enemy.enemySprite.setX(clampRange(enemy.enemySprite.circle.getCenterX() + (enemy.xMove * elapsedSeconds), 0, pane.getWidth() - enemy.enemySprite.circle.getRadius()));
                 enemy.enemySprite.setY(clampRange(enemy.enemySprite.circle.getCenterY() + (enemy.yMove * elapsedSeconds), 0, pane.getHeight() - enemy.enemySprite.circle.getRadius()));
-                enemy.move();                              	
+                enemy.move();
+                
+                if (player.playerRect.getBoundsInParent().intersects(enemy.enemySprite.circle.getBoundsInParent())) player.setHealth(-1);
                 
                 if (!bullets.isEmpty())
                 {
@@ -84,7 +86,12 @@ public class CaveExplorer extends Application {
                     	if (b.yDirection == 1) b.moveDown();
                     	if (b.xDirection == -2) b.moveLeft();
                     	if (b.xDirection == 2) b.moveRight();
-                    	if (b.getBoundsInParent().intersects(enemy.enemySprite.circle.getBoundsInParent())) pane.getChildren().remove(enemy.enemySprite.circle);
+                    	if (b.getBoundsInParent().intersects(enemy.enemySprite.circle.getBoundsInParent())) 
+                    	{
+                    		pane.getChildren().remove(b);
+                    		enemy.setHealth(-1);
+                    	}
+                    	if (enemy.currentHealth == 0) pane.getChildren().remove(enemy.enemySprite.circle);
                     }
                 }
                 lastUpdate = now ;
@@ -99,6 +106,8 @@ public class CaveExplorer extends Application {
         primaryStage.show();
         
         timer.start();
+        
+        player.setHealth(-2);
     }
 
 
