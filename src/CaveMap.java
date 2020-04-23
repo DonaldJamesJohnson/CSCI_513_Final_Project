@@ -9,7 +9,7 @@ import javafx.scene.paint.Color;
 
 public class CaveMap {
 	//setting it up as a singleton
-	private CaveMap() { }
+	public CaveMap() { }
 	
 	private static CaveMap CaveMapInstance;
 	public static CaveMap getCaveMap() {
