@@ -94,7 +94,21 @@ public class CaveExplorer extends Application {
                         	healthLabel.setText("Health: " + player.currentHealth);
                         }
                 	}	
-                }             
+                }
+                if (!enemies.isEmpty())
+                {
+                	for (Enemy e: enemies)
+                	{
+                        for (Enemy e2: enemies)
+                        {
+                        	if (e.containsEnemy(e2) && e2 != e && !e.innerEnemies.contains(e2)) 
+                        		{
+                        		e.addChild(e2);
+                        		System.out.println("COMBINE: " + e.currentHealth);
+                        		}
+                        }
+                	}	
+                }   
                 
                 if (!bullets.isEmpty())
                 {
@@ -107,7 +121,7 @@ public class CaveExplorer extends Application {
                         {
                         	for (Enemy e: enemies)
                         	{
-                            	if (b.getBoundsInParent().intersects(e.enemySprite.circle.getBoundsInParent()) && !b.dead) 
+                            	if (b.getBoundsInParent().intersects(e.enemySprite.circle.getBoundsInParent()) && !b.dead && !e.dead) 
                             	{
                             		pane.getChildren().remove(b);
                             		e.setHealth(-1);
