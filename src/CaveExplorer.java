@@ -1,5 +1,7 @@
 import java.util.ArrayList;
 import java.util.List;
+
+import com.sun.webkit.Timer;
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
 import javafx.beans.binding.Bindings;
@@ -39,23 +41,44 @@ public class CaveExplorer extends Application {
 
     Player player = new Player(2000, 2000, baseRect, 100);
 
-    PowerUp power1 = powerUpFactory.getPowerUp("SpeedBoost", 100, 100, speedRect);
+    PowerUp power1 = powerUpFactory.getPowerUp("SpeedBoost", 1800, 1900, speedRect);
 
-
+    //List<PowerUp> powerUps = new ArrayList<PowerUp>();
     List<Bullet> bullets = new ArrayList<Bullet>();
     List<Enemy> enemies = new ArrayList<Enemy>();
     int totalEnemies;
     Label scoreLabel = new Label();
     Label healthLabel = new Label();
     Font font = new Font ("Monospace", 15);
-    
+
+    private double powerUpTimer;
+    private boolean poweredUp = false;
+
+//    private void createPowerUps()
+//    {
+//        for (int i = 0; i < n; i++)
+//        {
+//            enemies.add(enemyFactory.getEnemy(caveMap.getTileSize(), 3));
+//        }
+//        for (Enemy e : enemies)
+//        {
+//            int x = rand.nextInt(caveMap.getNumTilesHoriz());
+//            int y = rand.nextInt(caveMap.getNumTilesVert());
+//            e.enemySprite.setPositionX(x);
+//            e.enemySprite.setPositionY(y);
+//            pane.getChildren().add(e.enemySprite.circle);
+//            player.addObserver(e);
+//            player.move();
+//        }
+//    }
+
     public void start(Stage primaryStage) {
     	// Create pane 
         // Create player 
         pane.getChildren().add(player.playerRect);
         pane.getChildren().add(power1.getPowerUpShape());
 		player.setWeaponBehavior(new BaseWeapon());
-		createEnemies(200);
+		createEnemies(15);
 		totalEnemies = enemies.size();
         // Create scene
         Scene scene = new Scene(new BorderPane(pane), 800, 800);
@@ -71,7 +94,7 @@ public class CaveExplorer extends Application {
                     lastUpdate = now ;
                     return ;
                 }
-                double elapsedSeconds = elapsedNanos / 1_000_000_000.0 ;
+                double elapsedSeconds = elapsedNanos / 1_000_000_000.0;
                 double deltaX = 0 ;
                 double deltaY = 0 ;
                 if (player.right) deltaX += player.speed ;
@@ -94,8 +117,24 @@ public class CaveExplorer extends Application {
                         	healthLabel.setText("Health: " + player.currentHealth);
                         }
                 	}	
-                }             
-                
+                }
+
+
+                if (power1 != null) {
+                    if(player.playerRect.getBoundsInParent().intersects(power1.getPowerUpShape().getBoundsInParent())) {
+                        player.speed = 750;
+                        powerUpTimer = System.currentTimeMillis() / 1000;
+                        poweredUp = true;
+                    }
+                }
+
+                if (poweredUp) {
+                    if (powerUpTimer + 3 < (System.currentTimeMillis() / 1000)) {
+                        player.speed = 500;
+                        poweredUp = false;
+                    }
+                }
+
                 if (!bullets.isEmpty())
                 {
                     for(Bullet b : bullets) {
@@ -126,11 +165,12 @@ public class CaveExplorer extends Application {
 
                     }
                 }
+
                 scoreLabel.setTranslateX(pane.getTranslateX() * -1);
                 scoreLabel.setTranslateY((pane.getTranslateY() * -1) + 15);
                 healthLabel.setTranslateX(pane.getTranslateX() * -1);
                 healthLabel.setTranslateY(pane.getTranslateY() * -1);
-                lastUpdate = now ;
+                lastUpdate = now;
             }
         };
         
