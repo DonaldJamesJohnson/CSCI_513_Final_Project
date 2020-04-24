@@ -13,13 +13,14 @@ import javafx.scene.shape.Rectangle;
 
 public class Player extends Observable
 {
-    Rectangle playerRect = new Rectangle();
+    Rectangle playerRect;
     WeaponBehavior wep;
-    int maxHealth;
+    int maxHealth = 100;
     int currentHealth;
     boolean dead;
     int speed = 500;
     int shootSpeed = 500;
+    int damage = 2;
     public boolean up ;
     public boolean down ;
     public boolean left ;
@@ -30,11 +31,10 @@ public class Player extends Observable
     public boolean shootLeft;
     public boolean shootRight;
 	
-	public Player(int X, int Y, Rectangle r, int h) 
+	public Player(int X, int Y) 
 	{
-        maxHealth = h;
+		playerRect = new Rectangle(0, 0, 20, 20);
         currentHealth = maxHealth;
-		playerRect = r;
         playerRect.setStroke(Color.BLACK);
         playerRect.setFill(Color.rgb(80, 80, 160));
         playerRect.setX(X);
