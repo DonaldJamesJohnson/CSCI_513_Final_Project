@@ -83,8 +83,6 @@ public class Enemy implements Observer {
 	public Enemy(int scalingFactor, int h){
 		int x = random.nextInt(50);
 		int y = random.nextInt(50);	
-		System.out.println("x: " + x);
-		System.out.println("y: " + y);
 		enemySprite = new EnemySprite(x,y,scalingFactor);
 		enemySprite.setLineColor(enemySprite.circle, Color.rgb(100, 200, 0));
 		this.scalingFactor = scalingFactor;
@@ -98,11 +96,9 @@ public class Enemy implements Observer {
 		Circle circle = enemySprite.getCircle();
 		enemySprite.setPositionX(random.nextInt(50));
 		enemySprite.setPositionY(random.nextInt(50));
-		System.out.println("Adding circle to pane: " + circle.getCenterX() + " " + circle.getCenterY() + " " + enemySprite.circle.getRadius());
 		pane.getChildren().add(circle);
 	}
 	
-	@Override
 	public void update(Observable o, Object arg) {
 		if (o instanceof Player)
 		{
@@ -141,25 +137,6 @@ public class Enemy implements Observer {
 			this.damage++;
 	}
 	
-//	public void removeChild(Enemy enemy)
-//	{
-//		if (innerEnemies.contains(enemy)) 
-//		{
-//			innerEnemies.remove(enemy);
-//			int radius = (int) this.enemySprite.circle.getRadius();
-//			this.enemySprite.circle.setRadius(radius -= 2);
-//			int x = random.nextInt(50);
-//			int y = random.nextInt(50);	
-//			this.enemySprite.circle.setTranslateX(x);
-//			this.enemySprite.circle.setTranslateY(y);
-//			x = random.nextInt(50);
-//			y = random.nextInt(50);	
-//			enemy.enemySprite.circle.setTranslateX(x);
-//			enemy.enemySprite.circle.setTranslateY(y);
-//		}
-//		
-//	}
-	
 	public void moveRelative(double X, double Y) {
 		enemySprite.circle.setCenterX(enemySprite.circle.getCenterX()+X);
 		enemySprite.circle.setCenterY(enemySprite.circle.getCenterY()+Y);	
@@ -175,15 +152,15 @@ public class Enemy implements Observer {
 	}
 	
 	public void setColor() {
-		if (currentHealth < combinedHealth * 0.3)
+		if (currentHealth <= combinedHealth * 0.3)
 		{
 			enemySprite.setLineColor(enemySprite.circle, Color.rgb(200, 40, 0));
 		}
-		else if (currentHealth < combinedHealth * 0.6)
+		else if (currentHealth <= combinedHealth * 0.6)
 		{
 			enemySprite.setLineColor(enemySprite.circle, Color.rgb(255, 180, 0));
 		}
-		else if (currentHealth >= combinedHealth * 0.6)
+		else if (currentHealth > combinedHealth * 0.6)
 		{
 			enemySprite.setLineColor(enemySprite.circle, Color.rgb(100, 200, 0));
 		}		
