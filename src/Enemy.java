@@ -77,6 +77,7 @@ public class Enemy implements Observer {
 	double xMove;
 	double yMove;
 	double speed = 200;
+	int damage = 1;
 	List<Enemy> innerEnemies = new ArrayList<Enemy>();
 	
 	public Enemy(int scalingFactor, int h){
@@ -132,24 +133,32 @@ public class Enemy implements Observer {
 	
 	public void addChild(Enemy enemy) 
 	{
-		innerEnemies.add(enemy);
-		int radius = (int) this.enemySprite.circle.getRadius();
-		this.enemySprite.circle.setRadius(radius += 2);
-		this.currentHealth += enemy.maxHealth;
-		this.combinedHealth = currentHealth;
-		this.speed += 1;
+			innerEnemies.add(enemy);
+			int radius = (int) this.enemySprite.circle.getRadius();
+			this.enemySprite.circle.setRadius(radius += 2);
+			this.combinedHealth = currentHealth;
+			this.speed += 1;
+			this.damage++;
 	}
 	
-	public void removeChild(Enemy enemy)
-	{
-		if (innerEnemies.contains(enemy)) 
-		{
-			innerEnemies.remove(enemy);
-			int radius = (int) this.enemySprite.circle.getRadius();
-			this.enemySprite.circle.setRadius(radius -= 2);
-		}
-		
-	}
+//	public void removeChild(Enemy enemy)
+//	{
+//		if (innerEnemies.contains(enemy)) 
+//		{
+//			innerEnemies.remove(enemy);
+//			int radius = (int) this.enemySprite.circle.getRadius();
+//			this.enemySprite.circle.setRadius(radius -= 2);
+//			int x = random.nextInt(50);
+//			int y = random.nextInt(50);	
+//			this.enemySprite.circle.setTranslateX(x);
+//			this.enemySprite.circle.setTranslateY(y);
+//			x = random.nextInt(50);
+//			y = random.nextInt(50);	
+//			enemy.enemySprite.circle.setTranslateX(x);
+//			enemy.enemySprite.circle.setTranslateY(y);
+//		}
+//		
+//	}
 	
 	public void moveRelative(double X, double Y) {
 		enemySprite.circle.setCenterX(enemySprite.circle.getCenterX()+X);
