@@ -81,7 +81,7 @@ public class CaveExplorer extends Application {
                 player.playerRect.setX(clampRange(player.playerRect.getX() + deltaX * elapsedSeconds, 0, pane.getWidth() - player.playerRect.getWidth()));
                 player.playerRect.setY(clampRange(player.playerRect.getY() + deltaY * elapsedSeconds, 0, pane.getHeight() - player.playerRect.getHeight()));
     	    	
-                if (!enemies.isEmpty())
+                if (!enemies.isEmpty() && !player.dead)
                 {
                 	for (Enemy e: enemies)
                 	{
@@ -90,11 +90,29 @@ public class CaveExplorer extends Application {
                         e.move();	
                         if (player.playerRect.getBoundsInParent().intersects(e.enemySprite.circle.getBoundsInParent()) && !e.dead)
                         {
-                        	player.setHealth(-1);
+                        	player.setHealth(-e.damage);
                         	healthLabel.setText("Health: " + player.currentHealth);
+                        	if (player.currentHealth <= 0) player.speed = 0;
                         }
                 	}	
-                }             
+                }
+                if (!enemies.isEmpty())
+                {
+                	for (Enemy e: enemies)
+                	{
+                        for (Enemy e2: enemies)
+                        {
+                        	if (e.innerEnemies.size() < 200)
+                        	{                        	
+                               	if (e.containsEnemy(e2) && e2 != e && !e.innerEnemies.contains(e2)) 
+                        		{
+                        		e.addChild(e2);
+                        		System.out.println("COMBINE: " + e.currentHealth);
+                        		}
+                        	}
+                        }
+                	}	
+                }   
                 
                 if (!bullets.isEmpty())
                 {
@@ -107,7 +125,7 @@ public class CaveExplorer extends Application {
                         {
                         	for (Enemy e: enemies)
                         	{
-                            	if (b.getBoundsInParent().intersects(e.enemySprite.circle.getBoundsInParent()) && !b.dead) 
+                            	if (b.getBoundsInParent().intersects(e.enemySprite.circle.getBoundsInParent()) && !b.dead && !e.dead) 
                             	{
                             		pane.getChildren().remove(b);
                             		e.setHealth(-1);

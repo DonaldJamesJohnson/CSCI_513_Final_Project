@@ -22,8 +22,8 @@ public class CaveMap {
 	}
 	
 	private final int tileSize = 20;
-    private final int numTilesHoriz = 500;
-    private final int numTilesVert = 500;
+    private final int numTilesHoriz = 300;
+    private final int numTilesVert = 300;
     private final int numFilledTiles = numTilesHoriz * numTilesVert / 2;
     private final int totalTiles = numTilesHoriz * numTilesVert; 
     
