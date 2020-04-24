@@ -54,29 +54,12 @@ public class CaveExplorer extends Application {
     private double powerUpTimer;
     private boolean poweredUp = false;
 
-//    private void createPowerUps()
-//    {
-//        for (int i = 0; i < n; i++)
-//        {
-//            enemies.add(enemyFactory.getEnemy(caveMap.getTileSize(), 3));
-//        }
-//        for (Enemy e : enemies)
-//        {
-//            int x = rand.nextInt(caveMap.getNumTilesHoriz());
-//            int y = rand.nextInt(caveMap.getNumTilesVert());
-//            e.enemySprite.setPositionX(x);
-//            e.enemySprite.setPositionY(y);
-//            pane.getChildren().add(e.enemySprite.circle);
-//            player.addObserver(e);
-//            player.move();
-//        }
-//    }
-
     public void start(Stage primaryStage) {
     	// Create pane 
         // Create player 
         pane.getChildren().add(player.playerRect);
-        pane.getChildren().add(power1.getPowerUpShape());
+//        pane.getChildren().add(power1.getPowerUpShape());
+        createPowerUps(player.getPlayerLocationX(), player.getPlayerLocationY(), power1);
 		player.setWeaponBehavior(new BaseWeapon());
 		createEnemies(15);
 		totalEnemies = enemies.size();
@@ -125,6 +108,7 @@ public class CaveExplorer extends Application {
                         player.speed = 750;
                         powerUpTimer = System.currentTimeMillis() / 1000;
                         poweredUp = true;
+
                     }
                 }
 
@@ -190,6 +174,19 @@ public class CaveExplorer extends Application {
       
         pane.getChildren().add(scoreLabel);
         pane.getChildren().add(healthLabel);
+    }
+
+    private void createPowerUps(double playerx, double playery, PowerUp pow)
+    {
+        int xLimitUp = (int)playerx + 300;
+        int xLimitDown = (int)playerx - 300;
+        int yLimitUp = (int)playery + 300;
+        int yLimitDown = (int)playery - 300;
+        int x = rand.nextInt((xLimitUp - xLimitDown) + 1) + xLimitDown;
+        int y = rand.nextInt((yLimitUp - yLimitDown) + 1) + yLimitDown;
+        pow.setPositionX(x);
+        pow.setPositionY(y);
+        pane.getChildren().add(pow.getPowerUpShape());
     }
 
 

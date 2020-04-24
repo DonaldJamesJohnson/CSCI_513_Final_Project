@@ -24,4 +24,15 @@ public class SpeedBoost implements PowerUp {
     public Shape getPowerUpShape() {
         return speedRect;
     }
+
+    @Override
+    public void setPositionX(double x) {
+        speedRect.setX(x);
+    }
+
+    @Override
+    public void setPositionY(double y) {
+        speedRect.setY(y);
+    }
+
 }
