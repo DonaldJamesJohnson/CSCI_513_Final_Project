@@ -7,6 +7,8 @@
  */
 
 import java.awt.Point;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.Random;
@@ -64,30 +66,29 @@ class EnemySprite{
 
 public class Enemy implements Observer {
 	int maxHealth;
+	int combinedHealth;
 	int currentHealth;
 	boolean dead;
 	Boolean running = true;
-	int radius;
 	Random random = new Random();
 	int scalingFactor;
 	EnemySprite enemySprite;
 	Point playerPosition = new Point();
-//	AnimationTimer enemyTimer;
 	double xMove;
 	double yMove;
 	double speed = 200;
+	int damage = 1;
+	List<Enemy> innerEnemies = new ArrayList<Enemy>();
 	
 	public Enemy(int scalingFactor, int h){
 		int x = random.nextInt(50);
 		int y = random.nextInt(50);	
-		System.out.println("x: " + x);
-		System.out.println("y: " + y);
 		enemySprite = new EnemySprite(x,y,scalingFactor);
 		enemySprite.setLineColor(enemySprite.circle, Color.rgb(100, 200, 0));
-		this.radius = 10;
 		this.scalingFactor = scalingFactor;
 		this.maxHealth = h;
 		this.currentHealth = maxHealth;
+		this.combinedHealth = currentHealth;
 		this.dead = false;
 	}
 	
@@ -95,11 +96,9 @@ public class Enemy implements Observer {
 		Circle circle = enemySprite.getCircle();
 		enemySprite.setPositionX(random.nextInt(50));
 		enemySprite.setPositionY(random.nextInt(50));
-		System.out.println("Adding circle to pane: " + circle.getCenterX() + " " + circle.getCenterY() + " " + radius);
 		pane.getChildren().add(circle);
 	}
 	
-	@Override
 	public void update(Observable o, Object arg) {
 		if (o instanceof Player)
 		{
@@ -112,14 +111,38 @@ public class Enemy implements Observer {
 	public void move() {
     		// Move X
     		double xDiff = playerPosition.getX() - enemySprite.circle.getCenterX();
-    		if (xDiff > radius) xMove = speed;
-    		else if (radius > xDiff) xMove = speed * -1.0;
+    		if (xDiff > enemySprite.circle.getRadius()) xMove = speed;
+    		else if (enemySprite.circle.getRadius() > xDiff) xMove = speed * -1.0;
     		else xMove = 0;
     		// Move Y
     		double yDiff = playerPosition.getY() - (enemySprite.circle.getCenterY());
-    		if (yDiff > radius) yMove = speed;
-    		else if (radius > yDiff) yMove = speed * -1.0;
+    		if (yDiff > enemySprite.circle.getRadius()) yMove = speed;
+    		else if (enemySprite.circle.getRadius() > yDiff) yMove = speed * -1.0;
     		else yMove = 0;
+	}
+	
+	public boolean containsEnemy(Enemy enemy)
+	{
+		boolean inSelf = (this.enemySprite.circle.getBoundsInParent().intersects(enemy.enemySprite.circle.getBoundsInParent()) && !enemy.dead);
+		return inSelf;
+	}
+	
+	public void addChild(Enemy enemy) 
+	{
+			innerEnemies.add(enemy);
+			int radius = (int) this.enemySprite.circle.getRadius();
+			this.enemySprite.circle.setRadius(radius += 2);
+			this.combinedHealth = currentHealth;
+			this.speed += 1;
+			this.damage++;
+	}
+	
+	public void moveRelative(double X, double Y) {
+		enemySprite.circle.setCenterX(enemySprite.circle.getCenterX()+X);
+		enemySprite.circle.setCenterY(enemySprite.circle.getCenterY()+Y);	
+		for(Enemy child: innerEnemies){
+			child.moveRelative(X,Y);
+		}
 	}
 	
 	public void setHealth(int diff)
@@ -129,15 +152,15 @@ public class Enemy implements Observer {
 	}
 	
 	public void setColor() {
-		if (currentHealth < maxHealth * 0.3)
+		if (currentHealth <= combinedHealth * 0.3)
 		{
 			enemySprite.setLineColor(enemySprite.circle, Color.rgb(200, 40, 0));
 		}
-		else if (currentHealth < maxHealth * 0.6)
+		else if (currentHealth <= combinedHealth * 0.6)
 		{
 			enemySprite.setLineColor(enemySprite.circle, Color.rgb(255, 180, 0));
 		}
-		else if (currentHealth >= maxHealth * 0.6)
+		else if (currentHealth > combinedHealth * 0.6)
 		{
 			enemySprite.setLineColor(enemySprite.circle, Color.rgb(100, 200, 0));
 		}		

@@ -20,19 +20,8 @@ import java.util.Random;
 public class CaveExplorer extends Application {
 	//getting instance of the CaveMap
     CaveMap caveMap = CaveMap.getCaveMap();
-
-    //setting up the factories
-    PowerUpFactory powerUpFactory = new PowerUpFactory();
-    EnemyFactory enemyFactory = new EnemyFactory();
-	Random rand = new Random();
-
-	// Set tile size and the horizontal and vertical size
+  
     Pane pane = caveMap.createBackground();
-    Rectangle baseRect = new Rectangle(
-    		caveMap.getNumTilesHoriz() * caveMap.getTileSize() / 2, 
-    		caveMap.getNumTilesVert() * caveMap.getTileSize() / 2,
-    		20, 
-    		20 );
 
     Rectangle speedRect = new Rectangle(
             caveMap.getNumTilesHoriz() * caveMap.getTileSize() / 2,
@@ -51,19 +40,18 @@ public class CaveExplorer extends Application {
             caveMap.getNumTilesVert() * caveMap.getTileSize() / 2,
             20,
             20 );
-
-    Player player = new Player(2000, 2000, baseRect, 100);
-
-    PowerUp power1 = powerUpFactory.getPowerUp("SpeedBoost", 1800, 1900, speedRect);
+    // Setting up the factories
+    PowerUpFactory powerUpFactory = new PowerUpFactory();//caveMap.getNumTilesHoriz(), caveMap.getTileSize());
+    EnemyFactory enemyFactory = new EnemyFactory();
+    
+    Player player = new Player(caveMap.getNumTilesHoriz() * caveMap.getTileSize() / 2, caveMap.getNumTilesVert() * caveMap.getTileSize() / 2);
 
     PowerUp powerhp = powerUpFactory.getPowerUp("HealthBoost", 1800, 1900, healthRect);
 
+    // Creating list to store the bullets and enemies currently on screen
     List<Bullet> bullets = new ArrayList<Bullet>();
     List<Enemy> enemies = new ArrayList<Enemy>();
     int totalEnemies;
-    Label scoreLabel = new Label();
-    Label healthLabel = new Label();
-    Font font = new Font ("Monospace", 15);
 
     private double speedTimer;
     private double weaponTimer;
@@ -71,19 +59,28 @@ public class CaveExplorer extends Application {
     private boolean gunsUp = false;
     private boolean isPowerUpAvailable = false;
     private double powerUpTimer;
-
-    public void start(Stage primaryStage) {
-    	// Create pane 
-        // Create player 
-        pane.getChildren().add(player.playerRect);
-		player.setWeaponBehavior(new BaseWeapon());
-		createEnemies(2);
-		totalEnemies = enemies.size();
-        // Create scene
+    
+    // Creating labels for score and health
+    Label scoreLabel;
+    Label healthLabel;
+    Font font;
+    
+	Random rand = new Random();
+    
+    public void start(Stage primaryStage) { 
+    	createPlayer();
+		createEnemies(200);
+        createPickups(1);
+        createLabels();
         Scene scene = new Scene(new BorderPane(pane), 800, 800);
-        // Set clip for scene
         setClip(scene);
         powerUpTimer = System.currentTimeMillis() / 1000;
+        // Player movement
+        scene.setOnKeyPressed(e -> processKey(e.getCode(), true));
+        scene.setOnKeyReleased(e -> processKey(e.getCode(), false));
+
+        primaryStage.setScene(scene);
+        primaryStage.show();
 		
 		AnimationTimer timer = new AnimationTimer() {
             private long lastUpdate = 0 ;
@@ -92,45 +89,83 @@ public class CaveExplorer extends Application {
                 long elapsedNanos = now - lastUpdate ;
                 if (lastUpdate < 0) {
                     lastUpdate = now ;
-                    return ;
+                    return;
                 }
-                double elapsedSeconds = elapsedNanos / 1_000_000_000.0;
-                double deltaX = 0 ;
-                double deltaY = 0 ;
-                if (player.right) deltaX += player.speed ;
-                if (player.left) deltaX -= player.speed ;
-                if (player.down) deltaY += player.speed ;
-                if (player.up) deltaY -= player.speed ;
-                player.playerRect.setX(clampRange(player.playerRect.getX() + deltaX * elapsedSeconds, 0, pane.getWidth() - player.playerRect.getWidth()));
-                player.playerRect.setY(clampRange(player.playerRect.getY() + deltaY * elapsedSeconds, 0, pane.getHeight() - player.playerRect.getHeight()));
+                double elapsedSeconds = elapsedNanos / 1_000_000_000.0 ;
+                update(elapsedSeconds);
+                lastUpdate = now ;
+            }
+        };               
+        timer.start();
+    }
 
-                //adding powerups after some time
-                if (powerUpTimer + 7 < (System.currentTimeMillis() / 1000)) {
-                    if (!isPowerUpAvailable) {
-                        int type = rand.nextInt(3);
-                        if (type == 0) {
-                            createPowerUps(player.getPlayerLocationX(), player.getPlayerLocationY(), power1);
-                        } else if (type == 1) {
-                            createPowerUps(player.getPlayerLocationX(), player.getPlayerLocationY(), powerhp);
-                        } else {
-                            createPowerUps(player.getPlayerLocationX(), player.getPlayerLocationY(), weaponRect);
-                        }
-                        isPowerUpAvailable = true;
-                    }
+    private void update(double seconds)
+    {
+    	double deltaX = 0 ;
+        double deltaY = 0 ;
+        if (player.right) deltaX += player.speed ;
+        if (player.left) deltaX -= player.speed ;
+        if (player.down) deltaY += player.speed ;
+        if (player.up) deltaY -= player.speed ;
+        player.playerRect.setX(clampRange(player.playerRect.getX() + deltaX * seconds, 0, pane.getWidth() - player.playerRect.getWidth()));
+        player.playerRect.setY(clampRange(player.playerRect.getY() + deltaY * seconds, 0, pane.getHeight() - player.playerRect.getHeight()));
+    	
+        if (!enemies.isEmpty() && !player.dead)
+        {
+        	for (Enemy e: enemies)
+        	{
+                e.enemySprite.setX(clampRange(e.enemySprite.circle.getCenterX() + (e.xMove * seconds), 0, pane.getWidth() - e.enemySprite.circle.getRadius()));
+                e.enemySprite.setY(clampRange(e.enemySprite.circle.getCenterY() + (e.yMove * seconds), 0, pane.getHeight() - e.enemySprite.circle.getRadius()));
+                e.move();	
+                if (player.playerRect.getBoundsInParent().intersects(e.enemySprite.circle.getBoundsInParent()) && !e.dead)
+                {
+                	player.setHealth(-e.damage);
+                	healthLabel.setText("Health: " + player.currentHealth);
+                	if (player.currentHealth <= 0) player.speed = 0;
                 }
-
+        	}	
+        }
+        if (!enemies.isEmpty())
+        {
+        	for (Enemy e: enemies)
+        	{
+                for (Enemy e2: enemies)
+                {
+                	if (e.innerEnemies.size() < 200)
+                	{                        	
+                       	if (e.containsEnemy(e2) && e2 != e && !e.innerEnemies.contains(e2)) 
+                		{
+                		e.addChild(e2);
+                		}
+                	}
+                }
+        	}	
+        }   
+        
+        if (!bullets.isEmpty())
+        {
+            for(Bullet b : bullets) {
+            	if (b.yDirection == -1) b.moveUp();
+            	if (b.yDirection == 1) b.moveDown();
+            	if (b.xDirection == -2) b.moveLeft();
+            	if (b.xDirection == 2) b.moveRight();
                 if (!enemies.isEmpty())
                 {
                 	for (Enemy e: enemies)
                 	{
-                        e.enemySprite.setX(clampRange(e.enemySprite.circle.getCenterX() + (e.xMove * elapsedSeconds), 0, pane.getWidth() - e.enemySprite.circle.getRadius()));
-                        e.enemySprite.setY(clampRange(e.enemySprite.circle.getCenterY() + (e.yMove * elapsedSeconds), 0, pane.getHeight() - e.enemySprite.circle.getRadius()));
-                        e.move();	
-                        if (player.playerRect.getBoundsInParent().intersects(e.enemySprite.circle.getBoundsInParent()) && !e.dead)
-                        {
-                        	player.setHealth(-1);
-                        	healthLabel.setText("Health: " + player.currentHealth);
-                        }
+                    	if (b.getBoundsInParent().intersects(e.enemySprite.circle.getBoundsInParent()) && !b.dead && !e.dead) 
+                    	{
+                    		pane.getChildren().remove(b);
+                    		e.setHealth(-player.damage);
+                    		b.dead = true;
+                    	}
+                    	if (e.currentHealth <= 0 && !e.dead) 
+                    		{
+                    		pane.getChildren().remove(e.enemySprite.circle);
+                    		e.dead = true;
+                    		totalEnemies--;
+                    		scoreLabel.setText("Enemies: " + totalEnemies);
+                    		}
                 	}	
                 }
 
@@ -223,22 +258,14 @@ public class CaveExplorer extends Application {
             }
         };
         
-        // Player movement
-        scene.setOnKeyPressed(e -> processKey(e.getCode(), true));
-        scene.setOnKeyReleased(e -> processKey(e.getCode(), false));
+                }
 
-        primaryStage.setScene(scene);
-        primaryStage.show();
-        
-        timer.start();
-        scoreLabel.setText("Enemies: " + totalEnemies);
-        scoreLabel.setFont(font);
-        healthLabel.setText("Health: " + player.currentHealth);
-        healthLabel.setFont(font);
-       
-      
-        pane.getChildren().add(scoreLabel);
-        pane.getChildren().add(healthLabel);
+            }
+        }
+        scoreLabel.setTranslateX(pane.getTranslateX() * -1);
+        scoreLabel.setTranslateY((pane.getTranslateY() * -1) + 15);
+        healthLabel.setTranslateX(pane.getTranslateX() * -1);
+        healthLabel.setTranslateY(pane.getTranslateY() * -1);
     }
 
     private void createPowerUps(double playerx, double playery, PowerUp pow)
@@ -268,8 +295,6 @@ public class CaveExplorer extends Application {
         rect.setY(y);
         pane.getChildren().add(rect);
     }
-
-
     
     public void processKey(KeyCode code, boolean on) {
         switch (code) {
@@ -319,11 +344,17 @@ public class CaveExplorer extends Application {
     	}
     }
     
+    private void createPlayer()
+    {
+        pane.getChildren().add(player.playerRect);
+		player.setWeaponBehavior(new BaseWeapon());
+    }
+    
     private void createEnemies(int n)
     {
     	for (int i = 0; i < n; i++)
     	{
-    		enemies.add(enemyFactory.getEnemy(caveMap.getTileSize(), 3));
+    		enemies.add(enemyFactory.getEnemy(caveMap.getTileSize(), 10));
     	}
     	for (Enemy e : enemies)
     	{
@@ -335,13 +366,26 @@ public class CaveExplorer extends Application {
     		player.addObserver(e);
     		player.move();
     	}
+		totalEnemies = enemies.size();
     }
 
-
-    private double clampRange(double value, double min, double max) {
-        if (value < min) return min ;
-        if (value > max) return max ;
-        return value ;
+    private void createPickups(int n)
+    {
+        PowerUp power1 = powerUpFactory.getPowerUp("SpeedBoost", 100, 100, speedRect);
+        pane.getChildren().add(power1.getPowerUpShape());
+    }
+    
+    private void createLabels()
+    {
+        scoreLabel = new Label();
+        healthLabel = new Label();
+        font = new Font ("Monospace", 15);
+        scoreLabel.setText("Enemies: " + totalEnemies);
+        scoreLabel.setFont(font);
+        healthLabel.setText("Health: " + player.currentHealth);
+        healthLabel.setFont(font);
+        pane.getChildren().add(scoreLabel);
+        pane.getChildren().add(healthLabel);
     }
     
     private void setClip(Scene scene)
@@ -360,6 +404,13 @@ public class CaveExplorer extends Application {
         pane.translateXProperty().bind(clip.xProperty().multiply(-1));
         pane.translateYProperty().bind(clip.yProperty().multiply(-1));
     }
+    
+    private double clampRange(double value, double min, double max) {
+        if (value < min) return min ;
+        if (value > max) return max ;
+        return value ;
+    }
+    
     public static void main(String[] args) {
         launch(args);
     }
