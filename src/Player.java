@@ -55,6 +55,10 @@ public class Player extends Observable
 	{
 		wep = wb;
 	}
+
+	public WeaponBehavior getWeaponBehavior() {
+		return wep;
+	}
 	
 	public void setHealth(int diff)
 	{

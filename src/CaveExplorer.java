@@ -66,7 +66,9 @@ public class CaveExplorer extends Application {
     Font font = new Font ("Monospace", 15);
 
     private double speedTimer;
+    private double weaponTimer;
     private boolean poweredUp = false;
+    private boolean gunsUp = false;
     private boolean isPowerUpAvailable = false;
     private double powerUpTimer;
 
@@ -105,7 +107,7 @@ public class CaveExplorer extends Application {
                 //adding powerups after some time
                 if (powerUpTimer + 7 < (System.currentTimeMillis() / 1000)) {
                     if (!isPowerUpAvailable) {
-                        int type = rand.nextInt(2);
+                        int type = rand.nextInt(3);
                         if (type == 0) {
                             createPowerUps(player.getPlayerLocationX(), player.getPlayerLocationY(), power1);
                         } else if (type == 1) {
@@ -133,14 +135,25 @@ public class CaveExplorer extends Application {
                 }
 
                 if(weaponRect != null) {
-
+                    if(player.playerRect.getBoundsInParent().intersects(weaponRect.getBoundsInParent())) {
+                        int wRand = rand.nextInt(2);
+                        if (wRand == 0)
+                            player.setWeaponBehavior(new MultiShotWeapon());
+                        else
+                            player.setWeaponBehavior(new AllAroundShotWeapon());
+                        weaponTimer = System.currentTimeMillis() / 1000;
+                        isPowerUpAvailable = false;
+                        gunsUp = true;
+                        powerUpTimer = System.currentTimeMillis() / 1000;
+                        pane.getChildren().remove(weaponRect);
+                    }
                 }
-
 
                 if(powerhp != null) {
                     if(player.playerRect.getBoundsInParent().intersects(powerhp.getPowerUpShape().getBoundsInParent())) {
                         player.currentHealth = player.maxHealth;
                         isPowerUpAvailable = false;
+                        healthLabel.setText("Health: " + player.currentHealth);s
                         powerUpTimer = System.currentTimeMillis() / 1000;
                         pane.getChildren().remove(powerhp.getPowerUpShape());
                     }
@@ -161,6 +174,13 @@ public class CaveExplorer extends Application {
                     if (speedTimer + 3 < (System.currentTimeMillis() / 1000)) {
                         player.speed = 500;
                         poweredUp = false;
+                    }
+                }
+
+                if (gunsUp) {
+                    if(weaponTimer + 3 < (System.currentTimeMillis() / 1000)) {
+                        player.setWeaponBehavior(new BaseWeapon());
+                        gunsUp = false;
                     }
                 }
 
@@ -236,8 +256,8 @@ public class CaveExplorer extends Application {
 
     private void createPowerUps(double playerx, double playery, Rectangle rect)
     {
-        healthRect.setStroke(Color.RED);
-        healthRect.setFill(Color.rgb(200, 0, 0, 1));
+        rect.setStroke(Color.RED);
+        rect.setFill(Color.rgb(200, 0, 0, 1));
         int xLimitUp = (int)playerx + 250;
         int xLimitDown = (int)playerx - 250;
         int yLimitUp = (int)playery + 250;
