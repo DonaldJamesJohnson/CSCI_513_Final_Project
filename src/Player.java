@@ -63,7 +63,6 @@ public class Player extends Observable
 	public void setHealth(int diff)
 	{
 		currentHealth += diff;
-		//System.out.println("Health: " + currentHealth);
 		setColor();
 	}
 	

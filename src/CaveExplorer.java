@@ -47,6 +47,7 @@ public class CaveExplorer extends Application {
     Player player = new Player(caveMap.getNumTilesHoriz() * caveMap.getTileSize() / 2, caveMap.getNumTilesVert() * caveMap.getTileSize() / 2);
 
     PowerUp powerhp = powerUpFactory.getPowerUp("HealthBoost", 1800, 1900, healthRect);
+    PowerUp power1 = powerUpFactory.getPowerUp("SpeedBoost", 100, 100, speedRect);
 
     // Creating list to store the bullets and enemies currently on screen
     List<Bullet> bullets = new ArrayList<Bullet>();
@@ -69,9 +70,13 @@ public class CaveExplorer extends Application {
     
     public void start(Stage primaryStage) { 
     	createPlayer();
-		createEnemies(200);
+		createEnemies(2);
         createPickups(1);
+        createPowerUps(player.getPlayerLocationX(), player.getPlayerLocationY(), powerhp);
+        createPowerUps(player.getPlayerLocationX(), player.getPlayerLocationY(), weaponRect);
+        createPowerUps(player.getPlayerLocationX(), player.getPlayerLocationY(), power1);
         createLabels();
+        //pane.getChildren().add(power1.getPowerUpShape());
         Scene scene = new Scene(new BorderPane(pane), 800, 800);
         setClip(scene);
         powerUpTimer = System.currentTimeMillis() / 1000;
@@ -97,6 +102,7 @@ public class CaveExplorer extends Application {
             }
         };               
         timer.start();
+        
     }
 
     private void update(double seconds)
@@ -168,6 +174,8 @@ public class CaveExplorer extends Application {
                     		}
                 	}	
                 }
+            }
+        }
 
                 if(weaponRect != null) {
                     if(player.playerRect.getBoundsInParent().intersects(weaponRect.getBoundsInParent())) {
@@ -186,9 +194,9 @@ public class CaveExplorer extends Application {
 
                 if(powerhp != null) {
                     if(player.playerRect.getBoundsInParent().intersects(powerhp.getPowerUpShape().getBoundsInParent())) {
-                        player.currentHealth = player.maxHealth;
+                    	player.setHealth(player.maxHealth - player.currentHealth);
                         isPowerUpAvailable = false;
-                        healthLabel.setText("Health: " + player.currentHealth);s
+                        healthLabel.setText("Health: " + player.currentHealth);
                         powerUpTimer = System.currentTimeMillis() / 1000;
                         pane.getChildren().remove(powerhp.getPowerUpShape());
                     }
@@ -219,54 +227,12 @@ public class CaveExplorer extends Application {
                     }
                 }
 
-                if (!bullets.isEmpty())
-                {
-                    for(Bullet b : bullets) {
-                    	if (b.yDirection == -1) b.moveUp();
-                    	if (b.yDirection == 1) b.moveDown();
-                    	if (b.xDirection == -2) b.moveLeft();
-                    	if (b.xDirection == 2) b.moveRight();
-                        if (!enemies.isEmpty())
-                        {
-                        	for (Enemy e: enemies)
-                        	{
-                            	if (b.getBoundsInParent().intersects(e.enemySprite.circle.getBoundsInParent()) && !b.dead) 
-                            	{
-                            		pane.getChildren().remove(b);
-                            		e.setHealth(-1);
-                            		System.out.println("Enemy health: " + e.currentHealth);
-                            		b.dead = true;
-                            	}
-                            	if (e.currentHealth <= 0 && !e.dead) 
-                            		{
-                            		pane.getChildren().remove(e.enemySprite.circle);
-                            		e.dead = true;
-                            		totalEnemies--;
-                            		scoreLabel.setText("Enemies: " + totalEnemies);
-                            		}
-                        	}	
-                        }
-
-                    }
-                }
-
                 scoreLabel.setTranslateX(pane.getTranslateX() * -1);
                 scoreLabel.setTranslateY((pane.getTranslateY() * -1) + 15);
                 healthLabel.setTranslateX(pane.getTranslateX() * -1);
                 healthLabel.setTranslateY(pane.getTranslateY() * -1);
-                lastUpdate = now;
             }
-        };
-        
-                }
-
-            }
-        }
-        scoreLabel.setTranslateX(pane.getTranslateX() * -1);
-        scoreLabel.setTranslateY((pane.getTranslateY() * -1) + 15);
-        healthLabel.setTranslateX(pane.getTranslateX() * -1);
-        healthLabel.setTranslateY(pane.getTranslateY() * -1);
-    }
+       
 
     private void createPowerUps(double playerx, double playery, PowerUp pow)
     {
@@ -371,8 +337,7 @@ public class CaveExplorer extends Application {
 
     private void createPickups(int n)
     {
-        PowerUp power1 = powerUpFactory.getPowerUp("SpeedBoost", 100, 100, speedRect);
-        pane.getChildren().add(power1.getPowerUpShape());
+
     }
     
     private void createLabels()
