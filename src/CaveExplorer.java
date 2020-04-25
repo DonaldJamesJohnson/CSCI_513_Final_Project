@@ -21,7 +21,7 @@ public class CaveExplorer extends Application {
     CaveMap caveMap = CaveMap.getCaveMap();
 
     //setting up the factories
-    PowerUpFactory powerUpFactory = new PowerUpFactory();//caveMap.getNumTilesHoriz(), caveMap.getTileSize());
+    PowerUpFactory powerUpFactory = new PowerUpFactory();
     EnemyFactory enemyFactory = new EnemyFactory();
 	Random rand = new Random();
 
@@ -39,11 +39,24 @@ public class CaveExplorer extends Application {
             20,
             20 );
 
+    Rectangle healthRect = new Rectangle(
+            caveMap.getNumTilesHoriz() * caveMap.getTileSize() / 2,
+            caveMap.getNumTilesVert() * caveMap.getTileSize() / 2,
+            20,
+            20 );
+
+    Rectangle weaponRect = new Rectangle(
+            caveMap.getNumTilesHoriz() * caveMap.getTileSize() / 2,
+            caveMap.getNumTilesVert() * caveMap.getTileSize() / 2,
+            20,
+            20 );
+
     Player player = new Player(2000, 2000, baseRect, 100);
 
     PowerUp power1 = powerUpFactory.getPowerUp("SpeedBoost", 1800, 1900, speedRect);
 
-    //List<PowerUp> powerUps = new ArrayList<PowerUp>();
+    PowerUp powerhp = powerUpFactory.getPowerUp("HealthBoost", 1800, 1900, healthRect);
+
     List<Bullet> bullets = new ArrayList<Bullet>();
     List<Enemy> enemies = new ArrayList<Enemy>();
     int totalEnemies;
@@ -51,22 +64,23 @@ public class CaveExplorer extends Application {
     Label healthLabel = new Label();
     Font font = new Font ("Monospace", 15);
 
-    private double powerUpTimer;
+    private double speedTimer;
     private boolean poweredUp = false;
+    private boolean isPowerUpAvailable = false;
+    private double powerUpTimer;
 
     public void start(Stage primaryStage) {
     	// Create pane 
         // Create player 
         pane.getChildren().add(player.playerRect);
-//        pane.getChildren().add(power1.getPowerUpShape());
-        createPowerUps(player.getPlayerLocationX(), player.getPlayerLocationY(), power1);
 		player.setWeaponBehavior(new BaseWeapon());
-		createEnemies(15);
+		createEnemies(2);
 		totalEnemies = enemies.size();
         // Create scene
         Scene scene = new Scene(new BorderPane(pane), 800, 800);
         // Set clip for scene
         setClip(scene);
+        powerUpTimer = System.currentTimeMillis() / 1000;
 		
 		AnimationTimer timer = new AnimationTimer() {
             private long lastUpdate = 0 ;
@@ -86,7 +100,23 @@ public class CaveExplorer extends Application {
                 if (player.up) deltaY -= player.speed ;
                 player.playerRect.setX(clampRange(player.playerRect.getX() + deltaX * elapsedSeconds, 0, pane.getWidth() - player.playerRect.getWidth()));
                 player.playerRect.setY(clampRange(player.playerRect.getY() + deltaY * elapsedSeconds, 0, pane.getHeight() - player.playerRect.getHeight()));
-    	    	
+
+                //adding powerups after some time
+                if (powerUpTimer + 7 < (System.currentTimeMillis() / 1000)) {
+                    if (!isPowerUpAvailable) {
+                        int type = rand.nextInt(2);
+                        if (type == 0) {
+                            createPowerUps(player.getPlayerLocationX(), player.getPlayerLocationY(), power1);
+                        } else if (type == 1) {
+                            createPowerUps(player.getPlayerLocationX(), player.getPlayerLocationY(), powerhp);
+                        } else {
+                            System.out.println("gun");
+                        }
+                        isPowerUpAvailable = true;
+                    }
+                }
+
+
                 if (!enemies.isEmpty())
                 {
                 	for (Enemy e: enemies)
@@ -103,17 +133,27 @@ public class CaveExplorer extends Application {
                 }
 
 
+                if(powerhp != null) {
+                    if(player.playerRect.getBoundsInParent().intersects(powerhp.getPowerUpShape().getBoundsInParent())) {
+                        player.currentHealth = player.maxHealth;
+                        isPowerUpAvailable = false;
+                        pane.getChildren().remove(powerhp.getPowerUpShape());
+                    }
+                }
+
                 if (power1 != null) {
                     if(player.playerRect.getBoundsInParent().intersects(power1.getPowerUpShape().getBoundsInParent())) {
                         player.speed = 750;
-                        powerUpTimer = System.currentTimeMillis() / 1000;
+                        speedTimer = System.currentTimeMillis() / 1000;
                         poweredUp = true;
-
+                        isPowerUpAvailable = false;
+                        powerUpTimer = System.currentTimeMillis() / 1000;
+                        pane.getChildren().remove(power1.getPowerUpShape());
                     }
                 }
 
                 if (poweredUp) {
-                    if (powerUpTimer + 3 < (System.currentTimeMillis() / 1000)) {
+                    if (speedTimer + 3 < (System.currentTimeMillis() / 1000)) {
                         player.speed = 500;
                         poweredUp = false;
                     }
@@ -178,10 +218,10 @@ public class CaveExplorer extends Application {
 
     private void createPowerUps(double playerx, double playery, PowerUp pow)
     {
-        int xLimitUp = (int)playerx + 300;
-        int xLimitDown = (int)playerx - 300;
-        int yLimitUp = (int)playery + 300;
-        int yLimitDown = (int)playery - 300;
+        int xLimitUp = (int)playerx + 250;
+        int xLimitDown = (int)playerx - 250;
+        int yLimitUp = (int)playery + 250;
+        int yLimitDown = (int)playery - 250;
         int x = rand.nextInt((xLimitUp - xLimitDown) + 1) + xLimitDown;
         int y = rand.nextInt((yLimitUp - yLimitDown) + 1) + yLimitDown;
         pow.setPositionX(x);
