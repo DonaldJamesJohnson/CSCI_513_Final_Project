@@ -10,6 +10,7 @@ import javafx.scene.control.Label;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
+import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
@@ -110,12 +111,11 @@ public class CaveExplorer extends Application {
                         } else if (type == 1) {
                             createPowerUps(player.getPlayerLocationX(), player.getPlayerLocationY(), powerhp);
                         } else {
-                            System.out.println("gun");
+                            createPowerUps(player.getPlayerLocationX(), player.getPlayerLocationY(), weaponRect);
                         }
                         isPowerUpAvailable = true;
                     }
                 }
-
 
                 if (!enemies.isEmpty())
                 {
@@ -132,11 +132,16 @@ public class CaveExplorer extends Application {
                 	}	
                 }
 
+                if(weaponRect != null) {
+
+                }
+
 
                 if(powerhp != null) {
                     if(player.playerRect.getBoundsInParent().intersects(powerhp.getPowerUpShape().getBoundsInParent())) {
                         player.currentHealth = player.maxHealth;
                         isPowerUpAvailable = false;
+                        powerUpTimer = System.currentTimeMillis() / 1000;
                         pane.getChildren().remove(powerhp.getPowerUpShape());
                     }
                 }
@@ -227,6 +232,21 @@ public class CaveExplorer extends Application {
         pow.setPositionX(x);
         pow.setPositionY(y);
         pane.getChildren().add(pow.getPowerUpShape());
+    }
+
+    private void createPowerUps(double playerx, double playery, Rectangle rect)
+    {
+        healthRect.setStroke(Color.RED);
+        healthRect.setFill(Color.rgb(200, 0, 0, 1));
+        int xLimitUp = (int)playerx + 250;
+        int xLimitDown = (int)playerx - 250;
+        int yLimitUp = (int)playery + 250;
+        int yLimitDown = (int)playery - 250;
+        int x = rand.nextInt((xLimitUp - xLimitDown) + 1) + xLimitDown;
+        int y = rand.nextInt((yLimitUp - yLimitDown) + 1) + yLimitDown;
+        rect.setX(x);
+        rect.setY(y);
+        pane.getChildren().add(rect);
     }
 
 
