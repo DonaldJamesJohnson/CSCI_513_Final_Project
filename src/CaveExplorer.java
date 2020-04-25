@@ -1,5 +1,7 @@
 import java.util.ArrayList;
 import java.util.List;
+
+import com.sun.webkit.Timer;
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
 import javafx.beans.binding.Bindings;
@@ -8,6 +10,7 @@ import javafx.scene.control.Label;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
+import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
@@ -17,9 +20,22 @@ import java.util.Random;
 public class CaveExplorer extends Application {
 	//getting instance of the CaveMap
     CaveMap caveMap = CaveMap.getCaveMap();
+  
     Pane pane = caveMap.createBackground();
 
     Rectangle speedRect = new Rectangle(
+            caveMap.getNumTilesHoriz() * caveMap.getTileSize() / 2,
+            caveMap.getNumTilesVert() * caveMap.getTileSize() / 2,
+            20,
+            20 );
+
+    Rectangle healthRect = new Rectangle(
+            caveMap.getNumTilesHoriz() * caveMap.getTileSize() / 2,
+            caveMap.getNumTilesVert() * caveMap.getTileSize() / 2,
+            20,
+            20 );
+
+    Rectangle weaponRect = new Rectangle(
             caveMap.getNumTilesHoriz() * caveMap.getTileSize() / 2,
             caveMap.getNumTilesVert() * caveMap.getTileSize() / 2,
             20,
@@ -30,11 +46,19 @@ public class CaveExplorer extends Application {
     
     Player player = new Player(caveMap.getNumTilesHoriz() * caveMap.getTileSize() / 2, caveMap.getNumTilesVert() * caveMap.getTileSize() / 2);
 
+    PowerUp powerhp = powerUpFactory.getPowerUp("HealthBoost", 1800, 1900, healthRect);
 
     // Creating list to store the bullets and enemies currently on screen
     List<Bullet> bullets = new ArrayList<Bullet>();
     List<Enemy> enemies = new ArrayList<Enemy>();
     int totalEnemies;
+
+    private double speedTimer;
+    private double weaponTimer;
+    private boolean poweredUp = false;
+    private boolean gunsUp = false;
+    private boolean isPowerUpAvailable = false;
+    private double powerUpTimer;
     
     // Creating labels for score and health
     Label scoreLabel;
@@ -50,6 +74,7 @@ public class CaveExplorer extends Application {
         createLabels();
         Scene scene = new Scene(new BorderPane(pane), 800, 800);
         setClip(scene);
+        powerUpTimer = System.currentTimeMillis() / 1000;
         // Player movement
         scene.setOnKeyPressed(e -> processKey(e.getCode(), true));
         scene.setOnKeyReleased(e -> processKey(e.getCode(), false));
@@ -144,12 +169,131 @@ public class CaveExplorer extends Application {
                 	}	
                 }
 
+                if(weaponRect != null) {
+                    if(player.playerRect.getBoundsInParent().intersects(weaponRect.getBoundsInParent())) {
+                        int wRand = rand.nextInt(2);
+                        if (wRand == 0)
+                            player.setWeaponBehavior(new MultiShotWeapon());
+                        else
+                            player.setWeaponBehavior(new AllAroundShotWeapon());
+                        weaponTimer = System.currentTimeMillis() / 1000;
+                        isPowerUpAvailable = false;
+                        gunsUp = true;
+                        powerUpTimer = System.currentTimeMillis() / 1000;
+                        pane.getChildren().remove(weaponRect);
+                    }
+                }
+
+                if(powerhp != null) {
+                    if(player.playerRect.getBoundsInParent().intersects(powerhp.getPowerUpShape().getBoundsInParent())) {
+                        player.currentHealth = player.maxHealth;
+                        isPowerUpAvailable = false;
+                        healthLabel.setText("Health: " + player.currentHealth);s
+                        powerUpTimer = System.currentTimeMillis() / 1000;
+                        pane.getChildren().remove(powerhp.getPowerUpShape());
+                    }
+                }
+
+                if (power1 != null) {
+                    if(player.playerRect.getBoundsInParent().intersects(power1.getPowerUpShape().getBoundsInParent())) {
+                        player.speed = 750;
+                        speedTimer = System.currentTimeMillis() / 1000;
+                        poweredUp = true;
+                        isPowerUpAvailable = false;
+                        powerUpTimer = System.currentTimeMillis() / 1000;
+                        pane.getChildren().remove(power1.getPowerUpShape());
+                    }
+                }
+
+                if (poweredUp) {
+                    if (speedTimer + 3 < (System.currentTimeMillis() / 1000)) {
+                        player.speed = 500;
+                        poweredUp = false;
+                    }
+                }
+
+                if (gunsUp) {
+                    if(weaponTimer + 3 < (System.currentTimeMillis() / 1000)) {
+                        player.setWeaponBehavior(new BaseWeapon());
+                        gunsUp = false;
+                    }
+                }
+
+                if (!bullets.isEmpty())
+                {
+                    for(Bullet b : bullets) {
+                    	if (b.yDirection == -1) b.moveUp();
+                    	if (b.yDirection == 1) b.moveDown();
+                    	if (b.xDirection == -2) b.moveLeft();
+                    	if (b.xDirection == 2) b.moveRight();
+                        if (!enemies.isEmpty())
+                        {
+                        	for (Enemy e: enemies)
+                        	{
+                            	if (b.getBoundsInParent().intersects(e.enemySprite.circle.getBoundsInParent()) && !b.dead) 
+                            	{
+                            		pane.getChildren().remove(b);
+                            		e.setHealth(-1);
+                            		System.out.println("Enemy health: " + e.currentHealth);
+                            		b.dead = true;
+                            	}
+                            	if (e.currentHealth <= 0 && !e.dead) 
+                            		{
+                            		pane.getChildren().remove(e.enemySprite.circle);
+                            		e.dead = true;
+                            		totalEnemies--;
+                            		scoreLabel.setText("Enemies: " + totalEnemies);
+                            		}
+                        	}	
+                        }
+
+                    }
+                }
+
+                scoreLabel.setTranslateX(pane.getTranslateX() * -1);
+                scoreLabel.setTranslateY((pane.getTranslateY() * -1) + 15);
+                healthLabel.setTranslateX(pane.getTranslateX() * -1);
+                healthLabel.setTranslateY(pane.getTranslateY() * -1);
+                lastUpdate = now;
+            }
+        };
+        
+                }
+
             }
         }
         scoreLabel.setTranslateX(pane.getTranslateX() * -1);
         scoreLabel.setTranslateY((pane.getTranslateY() * -1) + 15);
         healthLabel.setTranslateX(pane.getTranslateX() * -1);
         healthLabel.setTranslateY(pane.getTranslateY() * -1);
+    }
+
+    private void createPowerUps(double playerx, double playery, PowerUp pow)
+    {
+        int xLimitUp = (int)playerx + 250;
+        int xLimitDown = (int)playerx - 250;
+        int yLimitUp = (int)playery + 250;
+        int yLimitDown = (int)playery - 250;
+        int x = rand.nextInt((xLimitUp - xLimitDown) + 1) + xLimitDown;
+        int y = rand.nextInt((yLimitUp - yLimitDown) + 1) + yLimitDown;
+        pow.setPositionX(x);
+        pow.setPositionY(y);
+        pane.getChildren().add(pow.getPowerUpShape());
+    }
+
+    private void createPowerUps(double playerx, double playery, Rectangle rect)
+    {
+        rect.setStroke(Color.RED);
+        rect.setFill(Color.rgb(200, 0, 0, 1));
+        int xLimitUp = (int)playerx + 250;
+        int xLimitDown = (int)playerx - 250;
+        int yLimitUp = (int)playery + 250;
+        int yLimitDown = (int)playery - 250;
+        int x = rand.nextInt((xLimitUp - xLimitDown) + 1) + xLimitDown;
+        int y = rand.nextInt((yLimitUp - yLimitDown) + 1) + yLimitDown;
+        rect.setX(x);
+        rect.setY(y);
+        pane.getChildren().add(rect);
     }
     
     public void processKey(KeyCode code, boolean on) {
