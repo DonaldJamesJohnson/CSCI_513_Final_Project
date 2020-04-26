@@ -1,3 +1,4 @@
+package code;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,5 +18,10 @@ public class AllAroundShotWeapon implements WeaponBehavior{
     	b.add(b3);
     	b.add(b4);
     	return b;
+	}
+
+	@Override
+	public String getName() {
+		return "All Around Shot Weapon";
 	}
 }

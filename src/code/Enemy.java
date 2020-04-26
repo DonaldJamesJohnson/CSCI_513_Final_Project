@@ -1,3 +1,4 @@
+package code;
 /* File: Enemy.java
  * 
  * Created by: Donald Johnson
