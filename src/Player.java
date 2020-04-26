@@ -19,7 +19,7 @@ public class Player extends Observable
     int currentHealth;
     boolean dead;
     int speed = 500;
-    int shootSpeed = 500;
+    int shootSpeed = 1000;
     int damage = 2;
     public boolean up ;
     public boolean down ;
