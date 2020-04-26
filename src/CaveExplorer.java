@@ -55,7 +55,7 @@ public class CaveExplorer extends Application {
     // Creating list to store the bullets and enemies currently on screen
     List<Bullet> bullets = new ArrayList<Bullet>();
     List<Enemy> enemies = new ArrayList<Enemy>();
-    int totalEnemies;
+    int totalEnemies = 200;
 
     private double speedTimer;
     private double weaponTimer;
@@ -281,7 +281,7 @@ public class CaveExplorer extends Application {
         bullets = new ArrayList<Bullet>();
         enemies = new ArrayList<Enemy>();
 		createPlayer();
-		createEnemies(20);
+		createEnemies(totalEnemies);
         createPowerUps(player.getPlayerLocationX(), player.getPlayerLocationY(), powerhp);
         createPowerUps(player.getPlayerLocationX(), player.getPlayerLocationY(), weaponRect);
         createPowerUps(player.getPlayerLocationX(), player.getPlayerLocationY(), power1);
@@ -429,7 +429,6 @@ public class CaveExplorer extends Application {
     		player.addObserver(e);
     		player.move();
     	}
-		totalEnemies = enemies.size();
     }
     
     private void createLabels()
