@@ -138,7 +138,7 @@ public class CaveExplorer extends Application {
 
 	}
     	
-    public void update(double seconds)
+    private void update(double seconds)
     {
     	double deltaX = 0 ;
         double deltaY = 0 ;
@@ -275,7 +275,7 @@ public class CaveExplorer extends Application {
         healthLabel.setTranslateY(pane.getTranslateY() * -1);
     }
        
-    public void createGame()
+    private void createGame()
     {
         bullets = new ArrayList<Bullet>();
         enemies = new ArrayList<Enemy>();
@@ -288,7 +288,7 @@ public class CaveExplorer extends Application {
     	setClip(scene);
     }
     
-    public void endGame()
+    private void endGame()
     {
     	pane.getChildren().removeAll(bullets);
     	for (Enemy e : enemies)
@@ -305,7 +305,7 @@ public class CaveExplorer extends Application {
     	setClip(scene);
     }
     
-    public void winGame() 
+    private void winGame() 
     {
     	setState(State.END);
     	gameOverLabel = new Label("You Won!");
@@ -353,7 +353,7 @@ public class CaveExplorer extends Application {
         pane.getChildren().add(rect);
     }
     
-    public void processKey(KeyCode code, boolean on) {
+    private void processKey(KeyCode code, boolean on) {
     	if (getState() == State.GAME)
     	{    	
     		switch (code) {
@@ -393,7 +393,7 @@ public class CaveExplorer extends Application {
     	}
     }
     
-    public void shooting(int xdirection, int ydirection)
+    private void shooting(int xdirection, int ydirection)
     {
     	List<Bullet> b = new ArrayList<Bullet>();
     	b = player.performShoot(xdirection, ydirection);
@@ -404,7 +404,7 @@ public class CaveExplorer extends Application {
     	}
     }
     
-    public void createPlayer()
+    private void createPlayer()
     {
     	player = new Player(caveMap.getNumTilesHoriz() * caveMap.getTileSize() / 2, caveMap.getNumTilesVert() * caveMap.getTileSize() / 2);
         pane.getChildren().add(player.playerRect);
@@ -414,7 +414,7 @@ public class CaveExplorer extends Application {
         scene.setOnKeyReleased(e -> processKey(e.getCode(), false));	
     }
     
-    public void createEnemies(int n)
+    private void createEnemies(int n)
     {
     	for (int i = 0; i < n; i++)
     	{
@@ -432,7 +432,7 @@ public class CaveExplorer extends Application {
     	}
     }
     
-    public void createLabels()
+    private void createLabels()
     {
     	enemyLabel = new Label();
         healthLabel = new Label();
@@ -445,7 +445,7 @@ public class CaveExplorer extends Application {
         pane.getChildren().add(healthLabel);
     }
     
-    public void createMenu()
+    private void createMenu()
     {
     	createMenu = false;
 		pane.getChildren().add(menu.startButton);
@@ -453,27 +453,27 @@ public class CaveExplorer extends Application {
 		pane.getChildren().add(menu.gameLabel);	
     }
     
-    public State getState()
+    private State getState()
     {
     	return state;
     }
     
-    public void setState(State s)
+    private void setState(State s)
     {
     	state = s;
     }
     
-    public int getTotalEnemies()
+    private int getTotalEnemies()
     {
     	return totalEnemies;
     }
     
-    public void setTotalEnemies(int n)
+    private void setTotalEnemies(int n)
     {
     	totalEnemies = n;
     }
     
-    public int getPlayerHealth()
+    private int getPlayerHealth()
     {
     	return player.currentHealth;
     }
