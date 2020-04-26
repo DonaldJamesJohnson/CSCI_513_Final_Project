@@ -23,6 +23,8 @@ public class CaveExplorer extends Application {
     Pane pane = caveMap.createBackground();
     
     Scene scene = new Scene(new BorderPane(pane), 800, 800);
+    
+    AnimationTimer timer;
 
     Rectangle speedRect = new Rectangle(
             caveMap.getNumTilesHoriz() * caveMap.getTileSize() / 2,
@@ -65,6 +67,7 @@ public class CaveExplorer extends Application {
     // Creating labels for score and health
     Label enemyLabel;
     Label healthLabel;
+    Label gameOverLabel;
     Font font;
     
 	Random rand = new Random();
@@ -72,7 +75,8 @@ public class CaveExplorer extends Application {
 	public enum State
 	{
 		MENU,
-		GAME
+		GAME,
+		END
 	};
 	
 	private State state = State.MENU;
@@ -90,7 +94,7 @@ public class CaveExplorer extends Application {
 
 
 		
-		AnimationTimer timer = new AnimationTimer() {
+		timer = new AnimationTimer() {
             private long lastUpdate = 0 ;
             @Override
             public void handle(long now) {
@@ -120,6 +124,7 @@ public class CaveExplorer extends Application {
                     	}	
                 	}
                 }
+
                 lastUpdate = now ;
             }
         };
@@ -209,6 +214,7 @@ public class CaveExplorer extends Application {
                     		totalEnemies--;
                     		enemyLabel.setText("Enemies: " + totalEnemies);
                     		}
+                    	if (totalEnemies == 0) winGame();
                 	}	
                 }
             }
@@ -251,14 +257,14 @@ public class CaveExplorer extends Application {
         }
 
         if (poweredUp) {
-            if (speedTimer + 3 < (System.currentTimeMillis() / 1000)) {
+            if (speedTimer + 10 < (System.currentTimeMillis() / 1000)) {
                 player.speed = 500;
                 poweredUp = false;
             }
         }
 
         if (gunsUp) {
-            if(weaponTimer + 3 < (System.currentTimeMillis() / 1000)) {
+            if(weaponTimer + 10 < (System.currentTimeMillis() / 1000)) {
                 player.setWeaponBehavior(new BaseWeapon());
                 gunsUp = false;
             }
@@ -272,12 +278,15 @@ public class CaveExplorer extends Application {
        
     private void createGame()
     {
+        bullets = new ArrayList<Bullet>();
+        enemies = new ArrayList<Enemy>();
 		createPlayer();
-		createEnemies(200);
+		createEnemies(20);
         createPowerUps(player.getPlayerLocationX(), player.getPlayerLocationY(), powerhp);
         createPowerUps(player.getPlayerLocationX(), player.getPlayerLocationY(), weaponRect);
         createPowerUps(player.getPlayerLocationX(), player.getPlayerLocationY(), power1);
         createLabels();
+    	setClip(scene);
     }
     
     private void endGame()
@@ -293,8 +302,26 @@ public class CaveExplorer extends Application {
     	pane.getChildren().remove(weaponRect);
     	pane.getChildren().remove(healthLabel);
     	pane.getChildren().remove(enemyLabel);
-    	player = new Player(caveMap.getNumTilesHoriz() * caveMap.getTileSize() / 2, caveMap.getNumTilesVert() * caveMap.getTileSize() / 2);
-    	setClip(scene);
+    }
+    
+    private void winGame() 
+    {
+    	state = State.END;
+    	gameOverLabel = new Label("You Won!");
+    	Font gameOverFont = new Font("Monospace", 100);
+    	gameOverLabel.setFont(gameOverFont);
+    	gameOverLabel.setMinHeight(100);
+    	gameOverLabel.setMinWidth(300);
+    	gameOverLabel.setTranslateX((player.getPlayerLocationX() - gameOverLabel.getMinWidth() / 2) - 50);
+    	gameOverLabel.setTranslateY((player.getPlayerLocationY() - gameOverLabel.getMinHeight() / 2) - 100);
+    	timer.stop();
+    	for (Bullet b : bullets)
+    	{
+    		pane.getChildren().remove(b);
+    	}
+    	pane.getChildren().remove(healthLabel);
+    	pane.getChildren().remove(enemyLabel);
+    	pane.getChildren().add(gameOverLabel);
     }
     
     private void createPowerUps(double playerx, double playery, PowerUp pow)
@@ -378,6 +405,7 @@ public class CaveExplorer extends Application {
     
     private void createPlayer()
     {
+    	player = new Player(caveMap.getNumTilesHoriz() * caveMap.getTileSize() / 2, caveMap.getNumTilesVert() * caveMap.getTileSize() / 2);
         pane.getChildren().add(player.playerRect);
 		player.setWeaponBehavior(new BaseWeapon());
         // Player movement

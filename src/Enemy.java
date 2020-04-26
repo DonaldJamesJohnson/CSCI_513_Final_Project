@@ -134,7 +134,6 @@ public class Enemy implements Observer {
 			this.enemySprite.circle.setRadius(radius += 2);
 			this.combinedHealth = currentHealth;
 			this.speed += 1;
-			this.damage++;
 	}
 	
 	public void moveRelative(double X, double Y) {
