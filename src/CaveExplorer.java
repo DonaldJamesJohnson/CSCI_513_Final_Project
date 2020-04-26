@@ -104,14 +104,14 @@ public class CaveExplorer extends Application {
                     return;
                 }
                 double elapsedSeconds = elapsedNanos / 1_000_000_000.0 ;
-                if (state == State.GAME) update(elapsedSeconds);
-                else if (state == State.MENU)
+                if (getState() == State.GAME) update(elapsedSeconds);
+                else if (getState() == State.MENU)
                 {
                 	if (createMenu) createMenu();
                 	else {
                     	if (menu.start) 
                     	{
-                    		state = State.GAME;
+                    		setState(State.GAME);
                     		pane.getChildren().remove(menu.startButton);
                     		pane.getChildren().remove(menu.exitButton);
                     		pane.getChildren().remove(menu.gameLabel);
@@ -137,8 +137,6 @@ public class CaveExplorer extends Application {
 
 	}
     	
-        
-
     private void update(double seconds)
     {
     	double deltaX = 0 ;
@@ -164,8 +162,8 @@ public class CaveExplorer extends Application {
                 	if (player.currentHealth <= 0) 
                 	{
                 		player.speed = 0;
-                		state = State.MENU;
-                		System.out.println(state);
+                		setState(State.MENU);
+                		System.out.println(getState());
                 		createMenu = true;
                 		menu.start = false;
                 		endGame();
@@ -308,7 +306,7 @@ public class CaveExplorer extends Application {
     
     private void winGame() 
     {
-    	state = State.END;
+    	setState(State.END);
     	gameOverLabel = new Label("You Won!");
     	Font gameOverFont = new Font("Monospace", 100);
     	gameOverLabel.setFont(gameOverFont);
@@ -355,7 +353,7 @@ public class CaveExplorer extends Application {
     }
     
     public void processKey(KeyCode code, boolean on) {
-    	if (state == State.GAME)
+    	if (getState() == State.GAME)
     	{    	
     		switch (code) {
             case A:
@@ -452,6 +450,16 @@ public class CaveExplorer extends Application {
 		pane.getChildren().add(menu.startButton);
 		pane.getChildren().add(menu.exitButton);
 		pane.getChildren().add(menu.gameLabel);	
+    }
+    
+    private State getState()
+    {
+    	return state;
+    }
+    
+    private void setState(State s)
+    {
+    	state = s;
     }
     
     private void setClip(Scene scene)
