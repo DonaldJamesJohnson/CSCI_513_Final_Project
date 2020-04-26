@@ -1,9 +1,8 @@
 import java.util.ArrayList;
 import java.util.List;
-
-import com.sun.webkit.Timer;
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
@@ -22,6 +21,8 @@ public class CaveExplorer extends Application {
     CaveMap caveMap = CaveMap.getCaveMap();
   
     Pane pane = caveMap.createBackground();
+    
+    Scene scene = new Scene(new BorderPane(pane), 800, 800);
 
     Rectangle speedRect = new Rectangle(
             caveMap.getNumTilesHoriz() * caveMap.getTileSize() / 2,
@@ -62,30 +63,32 @@ public class CaveExplorer extends Application {
     private double powerUpTimer;
     
     // Creating labels for score and health
-    Label scoreLabel;
+    Label enemyLabel;
     Label healthLabel;
     Font font;
     
 	Random rand = new Random();
+	
+	public enum State
+	{
+		MENU,
+		GAME
+	};
+	
+	private State state = State.MENU;
+	Menu menu = new Menu(caveMap.getNumTilesHoriz() * caveMap.getTileSize() / 2, caveMap.getNumTilesVert() * caveMap.getTileSize() / 2);
+	boolean createMenu = true;
     
-    public void start(Stage primaryStage) { 
-    	createPlayer();
-		createEnemies(2);
-        createPickups(1);
-        createPowerUps(player.getPlayerLocationX(), player.getPlayerLocationY(), powerhp);
-        createPowerUps(player.getPlayerLocationX(), player.getPlayerLocationY(), weaponRect);
-        createPowerUps(player.getPlayerLocationX(), player.getPlayerLocationY(), power1);
-        createLabels();
-        //pane.getChildren().add(power1.getPowerUpShape());
-        Scene scene = new Scene(new BorderPane(pane), 800, 800);
-        setClip(scene);
-        powerUpTimer = System.currentTimeMillis() / 1000;
-        // Player movement
-        scene.setOnKeyPressed(e -> processKey(e.getCode(), true));
-        scene.setOnKeyReleased(e -> processKey(e.getCode(), false));
-
+    public void start(Stage primaryStage) {
+        setClip(scene);            
         primaryStage.setScene(scene);
         primaryStage.show();
+    	
+        //pane.getChildren().add(power1.getPowerUpShape());
+
+        powerUpTimer = System.currentTimeMillis() / 1000;
+
+
 		
 		AnimationTimer timer = new AnimationTimer() {
             private long lastUpdate = 0 ;
@@ -97,13 +100,39 @@ public class CaveExplorer extends Application {
                     return;
                 }
                 double elapsedSeconds = elapsedNanos / 1_000_000_000.0 ;
-                update(elapsedSeconds);
+                if (state == State.GAME) update(elapsedSeconds);
+                else if (state == State.MENU)
+                {
+                	if (createMenu) createMenu();
+                	else {
+                    	if (menu.start) 
+                    	{
+                    		state = State.GAME;
+                    		pane.getChildren().remove(menu.startButton);
+                    		pane.getChildren().remove(menu.exitButton);
+                    		pane.getChildren().remove(menu.gameLabel);
+                            createGame();
+                    	}
+                    	else if (menu.exit)
+                    	{
+                    		Platform.exit();
+                    		System.exit(0);
+                    	}	
+                	}
+                }
                 lastUpdate = now ;
             }
-        };               
+        };
+        
+        createMenu();
+
+
         timer.start();
         
-    }
+
+	}
+    	
+        
 
     private void update(double seconds)
     {
@@ -127,7 +156,15 @@ public class CaveExplorer extends Application {
                 {
                 	player.setHealth(-e.damage);
                 	healthLabel.setText("Health: " + player.currentHealth);
-                	if (player.currentHealth <= 0) player.speed = 0;
+                	if (player.currentHealth <= 0) 
+                	{
+                		player.speed = 0;
+                		state = State.MENU;
+                		System.out.println(state);
+                		createMenu = true;
+                		menu.start = false;
+                		endGame();
+                	}
                 }
         	}	
         }
@@ -170,70 +207,96 @@ public class CaveExplorer extends Application {
                     		pane.getChildren().remove(e.enemySprite.circle);
                     		e.dead = true;
                     		totalEnemies--;
-                    		scoreLabel.setText("Enemies: " + totalEnemies);
+                    		enemyLabel.setText("Enemies: " + totalEnemies);
                     		}
                 	}	
                 }
             }
         }
 
-                if(weaponRect != null) {
-                    if(player.playerRect.getBoundsInParent().intersects(weaponRect.getBoundsInParent())) {
-                        int wRand = rand.nextInt(2);
-                        if (wRand == 0)
-                            player.setWeaponBehavior(new MultiShotWeapon());
-                        else
-                            player.setWeaponBehavior(new AllAroundShotWeapon());
-                        weaponTimer = System.currentTimeMillis() / 1000;
-                        isPowerUpAvailable = false;
-                        gunsUp = true;
-                        powerUpTimer = System.currentTimeMillis() / 1000;
-                        pane.getChildren().remove(weaponRect);
-                    }
-                }
-
-                if(powerhp != null) {
-                    if(player.playerRect.getBoundsInParent().intersects(powerhp.getPowerUpShape().getBoundsInParent())) {
-                    	player.setHealth(player.maxHealth - player.currentHealth);
-                        isPowerUpAvailable = false;
-                        healthLabel.setText("Health: " + player.currentHealth);
-                        powerUpTimer = System.currentTimeMillis() / 1000;
-                        pane.getChildren().remove(powerhp.getPowerUpShape());
-                    }
-                }
-
-                if (power1 != null) {
-                    if(player.playerRect.getBoundsInParent().intersects(power1.getPowerUpShape().getBoundsInParent())) {
-                        player.speed = 750;
-                        speedTimer = System.currentTimeMillis() / 1000;
-                        poweredUp = true;
-                        isPowerUpAvailable = false;
-                        powerUpTimer = System.currentTimeMillis() / 1000;
-                        pane.getChildren().remove(power1.getPowerUpShape());
-                    }
-                }
-
-                if (poweredUp) {
-                    if (speedTimer + 3 < (System.currentTimeMillis() / 1000)) {
-                        player.speed = 500;
-                        poweredUp = false;
-                    }
-                }
-
-                if (gunsUp) {
-                    if(weaponTimer + 3 < (System.currentTimeMillis() / 1000)) {
-                        player.setWeaponBehavior(new BaseWeapon());
-                        gunsUp = false;
-                    }
-                }
-
-                scoreLabel.setTranslateX(pane.getTranslateX() * -1);
-                scoreLabel.setTranslateY((pane.getTranslateY() * -1) + 15);
-                healthLabel.setTranslateX(pane.getTranslateX() * -1);
-                healthLabel.setTranslateY(pane.getTranslateY() * -1);
+        if(weaponRect != null) {
+        	if(player.playerRect.getBoundsInParent().intersects(weaponRect.getBoundsInParent())) {
+                int wRand = rand.nextInt(2);
+                if (wRand == 0)
+                    player.setWeaponBehavior(new MultiShotWeapon());
+                else
+                    player.setWeaponBehavior(new AllAroundShotWeapon());
+                weaponTimer = System.currentTimeMillis() / 1000;
+                isPowerUpAvailable = false;
+                gunsUp = true;
+                powerUpTimer = System.currentTimeMillis() / 1000;
+                pane.getChildren().remove(weaponRect);
             }
-       
+        }
 
+        if(powerhp != null) {
+            if(player.playerRect.getBoundsInParent().intersects(powerhp.getPowerUpShape().getBoundsInParent())) {
+            	player.setHealth(player.maxHealth - player.currentHealth);
+                isPowerUpAvailable = false;
+                healthLabel.setText("Health: " + player.currentHealth);
+                powerUpTimer = System.currentTimeMillis() / 1000;
+                pane.getChildren().remove(powerhp.getPowerUpShape());
+            }
+        }
+
+        if (power1 != null) {
+            if(player.playerRect.getBoundsInParent().intersects(power1.getPowerUpShape().getBoundsInParent())) {
+                player.speed = 750;
+                speedTimer = System.currentTimeMillis() / 1000;
+                poweredUp = true;
+                isPowerUpAvailable = false;
+                powerUpTimer = System.currentTimeMillis() / 1000;
+                pane.getChildren().remove(power1.getPowerUpShape());
+            }
+        }
+
+        if (poweredUp) {
+            if (speedTimer + 3 < (System.currentTimeMillis() / 1000)) {
+                player.speed = 500;
+                poweredUp = false;
+            }
+        }
+
+        if (gunsUp) {
+            if(weaponTimer + 3 < (System.currentTimeMillis() / 1000)) {
+                player.setWeaponBehavior(new BaseWeapon());
+                gunsUp = false;
+            }
+        }
+
+        enemyLabel.setTranslateX(pane.getTranslateX() * -1);
+        enemyLabel.setTranslateY((pane.getTranslateY() * -1) + 15);
+        healthLabel.setTranslateX(pane.getTranslateX() * -1);
+        healthLabel.setTranslateY(pane.getTranslateY() * -1);
+    }
+       
+    private void createGame()
+    {
+		createPlayer();
+		createEnemies(200);
+        createPowerUps(player.getPlayerLocationX(), player.getPlayerLocationY(), powerhp);
+        createPowerUps(player.getPlayerLocationX(), player.getPlayerLocationY(), weaponRect);
+        createPowerUps(player.getPlayerLocationX(), player.getPlayerLocationY(), power1);
+        createLabels();
+    }
+    
+    private void endGame()
+    {
+    	pane.getChildren().removeAll(bullets);
+    	for (Enemy e : enemies)
+    	{
+    		pane.getChildren().remove(e.enemySprite.circle);
+    	}
+    	pane.getChildren().remove(player.playerRect);
+    	pane.getChildren().remove(power1.getPowerUpShape());
+    	pane.getChildren().remove(powerhp.getPowerUpShape());
+    	pane.getChildren().remove(weaponRect);
+    	pane.getChildren().remove(healthLabel);
+    	pane.getChildren().remove(enemyLabel);
+    	player = new Player(caveMap.getNumTilesHoriz() * caveMap.getTileSize() / 2, caveMap.getNumTilesVert() * caveMap.getTileSize() / 2);
+    	setClip(scene);
+    }
+    
     private void createPowerUps(double playerx, double playery, PowerUp pow)
     {
         int xLimitUp = (int)playerx + 250;
@@ -263,40 +326,43 @@ public class CaveExplorer extends Application {
     }
     
     public void processKey(KeyCode code, boolean on) {
-        switch (code) {
-        case A:
-        	player.move();
-            player.left = on ;
-            break ;
-        case D: 
-    		player.move();
-    		player.right = on ;
-            break ;
-        case W:
-    		player.move();
-    		player.up = on ;
-            break ;
-        case S:
-    		player.move();
-    		player.down = on ;
-            break ;
+    	if (state == State.GAME)
+    	{    	
+    		switch (code) {
+            case A:
+            	player.move();
+                player.left = on ;
+                break ;
+            case D: 
+        		player.move();
+        		player.right = on ;
+                break ;
+            case W:
+        		player.move();
+        		player.up = on ;
+                break ;
+            case S:
+        		player.move();
+        		player.down = on ;
+                break ;
 
-        case UP: 
-        	shooting(0, -1);
-        	break;
-        case DOWN:
-        	shooting(0, 1);
-        	break;
-        case LEFT:
-        	shooting(-2, 0);
-        	break;
-        case RIGHT: 
-        	shooting(2, 0);
-        	break;
-        	
-        default:
-            break ;
-        }
+            case UP: 
+            	shooting(0, -1);
+            	break;
+            case DOWN:
+            	shooting(0, 1);
+            	break;
+            case LEFT:
+            	shooting(-2, 0);
+            	break;
+            case RIGHT: 
+            	shooting(2, 0);
+            	break;
+            	
+            default:
+                break ;
+            }
+    	}
     }
     
     private void shooting(int xdirection, int ydirection)
@@ -314,6 +380,9 @@ public class CaveExplorer extends Application {
     {
         pane.getChildren().add(player.playerRect);
 		player.setWeaponBehavior(new BaseWeapon());
+        // Player movement
+        scene.setOnKeyPressed(e -> processKey(e.getCode(), true));
+        scene.setOnKeyReleased(e -> processKey(e.getCode(), false));	
     }
     
     private void createEnemies(int n)
@@ -334,23 +403,26 @@ public class CaveExplorer extends Application {
     	}
 		totalEnemies = enemies.size();
     }
-
-    private void createPickups(int n)
-    {
-
-    }
     
     private void createLabels()
     {
-        scoreLabel = new Label();
+    	enemyLabel = new Label();
         healthLabel = new Label();
         font = new Font ("Monospace", 15);
-        scoreLabel.setText("Enemies: " + totalEnemies);
-        scoreLabel.setFont(font);
+        enemyLabel.setText("Enemies: " + totalEnemies);
+        enemyLabel.setFont(font);
         healthLabel.setText("Health: " + player.currentHealth);
         healthLabel.setFont(font);
-        pane.getChildren().add(scoreLabel);
+        pane.getChildren().add(enemyLabel);
         pane.getChildren().add(healthLabel);
+    }
+    
+    private void createMenu()
+    {
+    	createMenu = false;
+		pane.getChildren().add(menu.startButton);
+		pane.getChildren().add(menu.exitButton);
+		pane.getChildren().add(menu.gameLabel);	
     }
     
     private void setClip(Scene scene)
