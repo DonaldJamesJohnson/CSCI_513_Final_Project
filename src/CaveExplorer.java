@@ -302,6 +302,8 @@ public class CaveExplorer extends Application {
     	pane.getChildren().remove(weaponRect);
     	pane.getChildren().remove(healthLabel);
     	pane.getChildren().remove(enemyLabel);
+    	player = new Player(caveMap.getNumTilesHoriz() * caveMap.getTileSize() / 2, caveMap.getNumTilesVert() * caveMap.getTileSize() / 2);
+    	setClip(scene);
     }
     
     private void winGame() 
