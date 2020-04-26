@@ -1,3 +1,4 @@
+package code;
 import javafx.scene.shape.Shape;
 
 public interface PowerUp {

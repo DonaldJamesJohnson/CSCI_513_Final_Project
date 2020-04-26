@@ -1,3 +1,4 @@
+package code;
 /* File: Player.java
  * 
  * Created by: Donald Johnson
@@ -18,9 +19,11 @@ public class Player extends Observable
     int maxHealth = 100;
     int currentHealth;
     boolean dead;
-    int speed = 500;
+    int defaultSpeed = 500;
+    int speed;
     int shootSpeed = 1000;
     int damage = 2;
+    int[] color = new int[3];
     public boolean up ;
     public boolean down ;
     public boolean left ;
@@ -39,6 +42,7 @@ public class Player extends Observable
         playerRect.setFill(Color.rgb(80, 80, 160));
         playerRect.setX(X);
         playerRect.setY(Y);
+        speed = defaultSpeed;
 	}
 	
 	public double getPlayerLocationX() 
@@ -56,14 +60,19 @@ public class Player extends Observable
 		wep = wb;
 	}
 
-	public WeaponBehavior getWeaponBehavior() {
-		return wep;
+	public String getWeaponBehavior() {
+		return wep.getName();
 	}
 	
 	public void setHealth(int diff)
 	{
 		currentHealth += diff;
 		setColor();
+	}
+	
+	public int getHealth()
+	{
+		return currentHealth;
 	}
 	
 	public void setColor() {
@@ -75,16 +84,50 @@ public class Player extends Observable
 		}
 		else if (currentHealth < maxHealth * 0.3)
 		{
-			playerRect.setFill(Color.rgb(160, 80, 80));
+			color[0] = 160;
+			color[1] = 80;
+			color[2] = 80;
+			playerRect.setFill(Color.rgb(color[0], color[1], color[2]));
 		}
 		else if (currentHealth < maxHealth * 0.6)
 		{
-			playerRect.setFill(Color.rgb(160, 160, 0));
+			color[0] = 160;
+			color[1] = 160;
+			color[2] = 0;
+			playerRect.setFill(Color.rgb(color[0], color[1], color[2]));
 		}
 		else if (currentHealth >= maxHealth * 0.6)
 		{
-			playerRect.setFill(Color.rgb(80, 80, 160));
+			color[0] = 80;
+			color[1] = 80;
+			color[2] = 160;
+			playerRect.setFill(Color.rgb(color[0], color[1], color[2]));
 		}		
+	}
+	
+	public int[] getColor()
+	{
+		return color;
+	}
+	
+	public void setSpeed(int s)
+	{
+		speed = s;
+	}
+	
+	public void resetSpeed()
+	{
+		speed = defaultSpeed;
+	}
+	
+	public int getSpeed() 
+	{
+		return speed;
+	}
+	
+	public int getDefaultSpeed()
+	{
+		return defaultSpeed;
 	}
 	
 	public List<Bullet> performShoot(int xdir, int ydir)

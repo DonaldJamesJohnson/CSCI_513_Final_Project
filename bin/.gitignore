@@ -1,13 +1,3 @@
-/CaveExplorer$1.class
-/AllAroundShotWeapon.class
-/BaseWeapon.class
-/Bullet.class
-/CaveExplorer$State.class
-/EnemyFactory.class
-/HealthBoost.class
-/Menu.class
-/MultiShotWeapon.class
-/PowerUp.class
-/PowerUpFactory.class
-/SpeedBoost.class
-/WeaponBehavior.class
+/CaveExplorerTest.class
+/code/
+/tc/
