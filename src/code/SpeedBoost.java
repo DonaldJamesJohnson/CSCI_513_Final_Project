@@ -30,4 +30,10 @@ public class SpeedBoost implements PowerUp {
         speedRect.setY(y);
     }
 
+    @Override
+    public double getPositionX() { return speedRect.getX(); }
+
+    @Override
+    public double getPositionY() { return speedRect.getY(); }
+
 }

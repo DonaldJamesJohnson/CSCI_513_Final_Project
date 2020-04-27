@@ -30,4 +30,10 @@ public class HealthBoost implements PowerUp {
         healthRect.setY(y);
     }
 
+    @Override
+    public double getPositionX() { return healthRect.getX(); }
+
+    @Override
+    public double getPositionY() { return healthRect.getY(); }
+
 }

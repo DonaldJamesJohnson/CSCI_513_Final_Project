@@ -94,5 +94,5 @@ class PlayerTest {
 		player.resetSpeed();
 		assertTrue(player.getSpeed() == player.getDefaultSpeed());
 	}
-	
+
 }
