@@ -32,14 +32,11 @@ public class CaveExplorer extends Application {
             caveMap.getNumTilesVert() * caveMap.getTileSize() / 2,
             20,
             20 );
-    // Setting up the factories
-    PowerUpFactory powerUpFactory = new PowerUpFactory();//caveMap.getNumTilesHoriz(), caveMap.getTileSize());
-    EnemyFactory enemyFactory = new EnemyFactory();
     
     Player player = new Player(caveMap.getNumTilesHoriz() * caveMap.getTileSize() / 2, caveMap.getNumTilesVert() * caveMap.getTileSize() / 2);
 
-    PowerUp powerhp = powerUpFactory.getPowerUp("HealthBoost", caveMap.getNumTilesHoriz() * caveMap.getTileSize() / 2, caveMap.getNumTilesVert() * caveMap.getTileSize() / 2);
-    PowerUp power1 = powerUpFactory.getPowerUp("SpeedBoost", caveMap.getNumTilesHoriz() * caveMap.getTileSize() / 2, caveMap.getNumTilesVert() * caveMap.getTileSize() / 2);
+    PowerUp powerhp = PowerUpFactory.getPowerUp("HealthBoost", caveMap.getNumTilesHoriz() * caveMap.getTileSize() / 2, caveMap.getNumTilesVert() * caveMap.getTileSize() / 2);
+    PowerUp power1 = PowerUpFactory.getPowerUp("SpeedBoost", caveMap.getNumTilesHoriz() * caveMap.getTileSize() / 2, caveMap.getNumTilesVert() * caveMap.getTileSize() / 2);
 
     // Creating list to store the bullets and enemies currently on screen
     List<Bullet> bullets = new ArrayList<Bullet>();
@@ -406,7 +403,7 @@ public class CaveExplorer extends Application {
     {
     	for (int i = 0; i < n; i++)
     	{
-    		enemies.add(enemyFactory.getEnemy(caveMap.getTileSize(), 10));
+    		enemies.add(EnemyFactory.getEnemy(caveMap.getTileSize(), 10));
     	}
     	for (Enemy e : enemies)
     	{
