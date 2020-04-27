@@ -4,11 +4,11 @@ import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.Shape;
 
 public class HealthBoost implements PowerUp {
-    Rectangle healthRect = new Rectangle();
+    Rectangle healthRect;
 
-    public HealthBoost(int X, int Y, Rectangle r)
+    public HealthBoost(int X, int Y)
     {
-        healthRect = r;
+        healthRect = new Rectangle(0, 0, 20, 20);;
         healthRect.setStroke(Color.GREEN);
         healthRect.setFill(Color.rgb(0, 200, 0, 1));
         healthRect.setX(X);

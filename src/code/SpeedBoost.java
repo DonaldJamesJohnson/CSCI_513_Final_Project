@@ -4,11 +4,11 @@ import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.Shape;
 
 public class SpeedBoost implements PowerUp {
-    Rectangle speedRect = new Rectangle();
+    Rectangle speedRect;
 
-    public SpeedBoost(int X, int Y, Rectangle r)
+    public SpeedBoost(int X, int Y)
     {
-        speedRect = r;
+        speedRect = new Rectangle(0, 0, 20, 20);;
         speedRect.setStroke(Color.GREEN);
         speedRect.setFill(Color.rgb(10, 200, 200, 1));
         speedRect.setX(X);

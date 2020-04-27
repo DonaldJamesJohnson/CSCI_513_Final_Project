@@ -27,18 +27,6 @@ public class CaveExplorer extends Application {
     
     AnimationTimer timer;
 
-    Rectangle speedRect = new Rectangle(
-            caveMap.getNumTilesHoriz() * caveMap.getTileSize() / 2,
-            caveMap.getNumTilesVert() * caveMap.getTileSize() / 2,
-            20,
-            20 );
-
-    Rectangle healthRect = new Rectangle(
-            caveMap.getNumTilesHoriz() * caveMap.getTileSize() / 2,
-            caveMap.getNumTilesVert() * caveMap.getTileSize() / 2,
-            20,
-            20 );
-
     Rectangle weaponRect = new Rectangle(
             caveMap.getNumTilesHoriz() * caveMap.getTileSize() / 2,
             caveMap.getNumTilesVert() * caveMap.getTileSize() / 2,
@@ -50,8 +38,8 @@ public class CaveExplorer extends Application {
     
     Player player = new Player(caveMap.getNumTilesHoriz() * caveMap.getTileSize() / 2, caveMap.getNumTilesVert() * caveMap.getTileSize() / 2);
 
-    PowerUp powerhp = powerUpFactory.getPowerUp("HealthBoost", 1800, 1900, healthRect);
-    PowerUp power1 = powerUpFactory.getPowerUp("SpeedBoost", 100, 100, speedRect);
+    PowerUp powerhp = powerUpFactory.getPowerUp("HealthBoost", caveMap.getNumTilesHoriz() * caveMap.getTileSize() / 2, caveMap.getNumTilesVert() * caveMap.getTileSize() / 2);
+    PowerUp power1 = powerUpFactory.getPowerUp("SpeedBoost", caveMap.getNumTilesHoriz() * caveMap.getTileSize() / 2, caveMap.getNumTilesVert() * caveMap.getTileSize() / 2);
 
     // Creating list to store the bullets and enemies currently on screen
     List<Bullet> bullets = new ArrayList<Bullet>();
