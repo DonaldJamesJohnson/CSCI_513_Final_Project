@@ -1,3 +1,11 @@
+/* Enemy.java
+ * Donald Johnson
+ * 
+ * Enemy contains both the EnemySprite and Enemy classes. 
+ * EnemySprite defines the circular representation of the enemies and provides functions for getting and setting the locations and color of the sprite. 
+ * Enemy implements Observer and observes the Player. It has an EnemySprite as a representation, and implements the composite design pattern which allows
+ * it to contain other Enemies.
+ */
 package code;
 /* File: Enemy.java
  * 

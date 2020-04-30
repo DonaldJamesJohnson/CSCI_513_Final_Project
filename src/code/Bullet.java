@@ -1,3 +1,9 @@
+/* Bullet.java
+ * Donald Johnson
+ * 
+ * Bullet is a class that defines the characteristics of the bullets shot by the player, and their movement patterns.
+ */
+
 package code;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;

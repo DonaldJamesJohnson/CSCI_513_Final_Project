@@ -1,3 +1,9 @@
+/* Menu.java
+ * Donald Johnson
+ * 
+ * Menu defines the buttons to start or exit the game, the game label, and sets the attributes of these. 
+ * It also handles the user input of clicking on the buttons
+ */
 package code;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;

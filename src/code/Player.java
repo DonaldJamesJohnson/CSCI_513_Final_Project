@@ -1,4 +1,3 @@
-package code;
 /* File: Player.java
  * 
  * Created by: Donald Johnson
@@ -6,6 +5,7 @@ package code;
  * Purpose: The Player class stores and changes the player's location when a prompted by a key event triggered in CaveExplorer.
  * 			Instances of this class are observed by instances of Enemy. 
  */
+package code;
 
 import java.util.List;
 import java.util.Observable;
