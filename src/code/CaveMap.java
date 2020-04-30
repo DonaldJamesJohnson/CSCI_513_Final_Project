@@ -1,3 +1,5 @@
+//This is a singleton class and sets up the
+//background canvas for the game
 package code;
 import java.util.ArrayList;
 import java.util.List;
@@ -34,7 +36,9 @@ public class CaveMap {
     public int getNumTilesVert() { return numTilesVert; }
     public int getNumFilledTiles() { return numFilledTiles; }
     public int getTotalTiles() { return totalTiles; }
-    
+
+    //This method returns a Pane after creating the
+    //background, coloring it and filling the tiles
     public Pane createBackground() {
 
         List<Integer> filledTiles = sampleWithoutReplacement(numFilledTiles, numTilesHoriz * numTilesVert);
@@ -51,13 +55,15 @@ public class CaveMap {
         pane.setMaxSize(numTilesHoriz * tileSize, numTilesVert * tileSize);
         
         List<Integer> totalTilesList = sampleWithoutReplacement(totalTiles, numTilesHoriz * numTilesVert);
-        
+
+        //coloring the tiles
         gc.setFill(Color.DIMGRAY);
         for (Integer tile: totalTilesList) {
             int x = (tile % numTilesHoriz) * tileSize ;
             int y = (tile / numTilesHoriz) * tileSize ;
             gc.fillRect(x, y, tileSize, tileSize);
         }
+        //filling them with a set color: grey
         gc.setFill(Color.rgb(130, 130, 130));
         for (Integer tile : filledTiles) {
             int x = (tile % numTilesHoriz) * tileSize ;

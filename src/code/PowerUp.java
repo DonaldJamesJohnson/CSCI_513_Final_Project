@@ -1,3 +1,6 @@
+//This interface is used to refer all
+//the powerups and allows for greater
+//abstraction in the main class.
 package code;
 import javafx.scene.shape.Shape;
 
