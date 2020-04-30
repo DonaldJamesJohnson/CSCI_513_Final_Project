@@ -155,7 +155,6 @@ public class CaveExplorer extends Application {
                 	{
                 		player.setSpeed(0);
                 		setState(State.MENU);
-                		System.out.println(getState());
                 		createMenu = true;
                 		menu.start = false;
                 		endGame();
@@ -175,6 +174,7 @@ public class CaveExplorer extends Application {
                        	if (e.containsEnemy(e2) && e2 != e && !e.innerEnemies.contains(e2)) 
                 		{
                 		e.addChild(e2);
+                		e2.enemySprite.circle.resize(0, 0);
                 		}
                 	}
                 }
@@ -288,6 +288,7 @@ public class CaveExplorer extends Application {
     	pane.getChildren().remove(healthLabel);
     	pane.getChildren().remove(enemyLabel);
     	player = new Player(caveMap.getNumTilesHoriz() * caveMap.getTileSize() / 2, caveMap.getNumTilesVert() * caveMap.getTileSize() / 2);
+    	totalEnemies = 200;
     	setClip(scene);
     }
     // Win the game, set the state to END, create the game over label, and stop the animation timer
