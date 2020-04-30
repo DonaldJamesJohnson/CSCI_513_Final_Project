@@ -30,8 +30,8 @@ public class CaveExplorer extends Application {
     Rectangle weaponRect = new Rectangle(
             caveMap.getNumTilesHoriz() * caveMap.getTileSize() / 2,
             caveMap.getNumTilesVert() * caveMap.getTileSize() / 2,
-            20,
-            20 );
+            40,
+            40 );
     
     Player player = new Player(caveMap.getNumTilesHoriz() * caveMap.getTileSize() / 2, caveMap.getNumTilesVert() * caveMap.getTileSize() / 2);
 

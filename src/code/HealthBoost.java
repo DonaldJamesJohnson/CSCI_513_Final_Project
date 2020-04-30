@@ -1,3 +1,8 @@
+//This class implements the PowerUp interface
+//and contains code to set up a rectangle
+//which can then be picked up by the user and
+//gives a healthboost.
+
 package code;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
@@ -8,7 +13,7 @@ public class HealthBoost implements PowerUp {
 
     public HealthBoost(int X, int Y)
     {
-        healthRect = new Rectangle(0, 0, 20, 20);;
+        healthRect = new Rectangle(0, 0, 40, 40);;
         healthRect.setStroke(Color.GREEN);
         healthRect.setFill(Color.rgb(0, 200, 0, 1));
         healthRect.setX(X);
