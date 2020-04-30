@@ -47,8 +47,6 @@ public class CaveExplorer extends Application {
     private double weaponTimer;
     private boolean poweredUp = false;
     private boolean gunsUp = false;
-    private boolean isPowerUpAvailable = false;
-    private double powerUpTimer;
     
     // Creating labels for score, health, and game over
     Label enemyLabel;
@@ -74,10 +72,6 @@ public class CaveExplorer extends Application {
         primaryStage.setScene(scene);
         primaryStage.show();
     	
-        //pane.getChildren().add(power1.getPowerUpShape());
-
-        powerUpTimer = System.currentTimeMillis() / 1000;
-
         setTotalEnemies(200);
 		
 		timer = new AnimationTimer() {
@@ -212,9 +206,7 @@ public class CaveExplorer extends Application {
                 else
                     player.setWeaponBehavior(new AllAroundShotWeapon());
                 weaponTimer = System.currentTimeMillis() / 1000;
-                isPowerUpAvailable = false;
                 gunsUp = true;
-                powerUpTimer = System.currentTimeMillis() / 1000;
                 pane.getChildren().remove(weaponRect);
             }
         }
@@ -222,9 +214,7 @@ public class CaveExplorer extends Application {
         if(powerhp != null) {
             if(player.playerRect.getBoundsInParent().intersects(powerhp.getPowerUpShape().getBoundsInParent())) {
             	player.setHealth(player.maxHealth - getPlayerHealth());
-                isPowerUpAvailable = false;
                 healthLabel.setText("Health: " + getPlayerHealth());
-                powerUpTimer = System.currentTimeMillis() / 1000;
                 pane.getChildren().remove(powerhp.getPowerUpShape());
             }
         }
@@ -234,8 +224,6 @@ public class CaveExplorer extends Application {
                 player.setSpeed(750);
                 speedTimer = System.currentTimeMillis() / 1000;
                 poweredUp = true;
-                isPowerUpAvailable = false;
-                powerUpTimer = System.currentTimeMillis() / 1000;
                 pane.getChildren().remove(power1.getPowerUpShape());
             }
         }
