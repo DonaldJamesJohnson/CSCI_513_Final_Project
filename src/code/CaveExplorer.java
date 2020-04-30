@@ -1,3 +1,11 @@
+/* CaveExplorer.java
+ * Donald Johnson
+ * 
+ * CaveExplorer is the core of this project. It contains the main method, which in turn launches the start method of the application.
+ * The start method makes everything visible in the primary stage, and contains the AnimationTimer which contains all important interactions 
+ * in the game. 
+ */
+
 package code;
 import java.util.ArrayList;
 import java.util.List;
@@ -20,9 +28,9 @@ import java.util.Random;
 public class CaveExplorer extends Application {
 	//getting instance of the CaveMap
     CaveMap caveMap = CaveMap.getCaveMap();
-  
+    // Set the pane
     Pane pane = caveMap.createBackground();
-    
+    // Set the scene
     Scene scene = new Scene(new BorderPane(pane), 800, 800);
     
     AnimationTimer timer;
@@ -32,7 +40,7 @@ public class CaveExplorer extends Application {
             caveMap.getNumTilesVert() * caveMap.getTileSize() / 2,
             40,
             40 );
-    
+    // Create a new player
     Player player = new Player(caveMap.getNumTilesHoriz() * caveMap.getTileSize() / 2, caveMap.getNumTilesVert() * caveMap.getTileSize() / 2);
 
     PowerUp powerhp = PowerUpFactory.getPowerUp("HealthBoost", caveMap.getNumTilesHoriz() * caveMap.getTileSize() / 2, caveMap.getNumTilesVert() * caveMap.getTileSize() / 2);
@@ -48,7 +56,7 @@ public class CaveExplorer extends Application {
     private boolean poweredUp = false;
     private boolean gunsUp = false;
     
-    // Creating labels for score, health, and game over
+    // Creating labels for score, health, and game over, as well as the font used by the labels
     Label enemyLabel;
     Label healthLabel;
     Label gameOverLabel;
@@ -56,6 +64,7 @@ public class CaveExplorer extends Application {
     
 	Random rand = new Random();
 	
+	// Defines the various states of the game
 	public enum State
 	{
 		MENU,
@@ -119,15 +128,18 @@ public class CaveExplorer extends Application {
     	
     private void update(double seconds)
     {
+    	// Set the deltas for player movement
     	double deltaX = 0 ;
         double deltaY = 0 ;
         if (player.right) deltaX += player.getSpeed() ;
         if (player.left) deltaX -= player.getSpeed() ;
         if (player.down) deltaY += player.getSpeed() ;
         if (player.up) deltaY -= player.getSpeed() ;
+        // Ensure that the player is the center of the screen until reaching the clip border
         player.playerRect.setX(clampRange(player.playerRect.getX() + deltaX * seconds, 0, pane.getWidth() - player.playerRect.getWidth()));
         player.playerRect.setY(clampRange(player.playerRect.getY() + deltaY * seconds, 0, pane.getHeight() - player.playerRect.getHeight()));
     	
+        // Iterate through the enemies and move them. Also check to see if the enemies are touching the player and apply damage if so
         if (!enemies.isEmpty() && !player.dead)
         {
         	for (Enemy e: enemies)
@@ -151,6 +163,7 @@ public class CaveExplorer extends Application {
                 }
         	}	
         }
+        // Iterate through enemies and if they touch each other, then one of them adds the other as a child
         if (!enemies.isEmpty())
         {
         	for (Enemy e: enemies)
@@ -167,7 +180,7 @@ public class CaveExplorer extends Application {
                 }
         	}	
         }   
-        
+        // Iterate through the list of bullets and move them. Also check to see if they are hitting an enemy and deal damage and remove the bullet
         if (!bullets.isEmpty())
         {
             for(Bullet b : bullets) {
@@ -197,7 +210,7 @@ public class CaveExplorer extends Application {
                 }
             }
         }
-
+        // Handle weapon power up iteracting with player
         if(weaponRect != null) {
         	if(player.playerRect.getBoundsInParent().intersects(weaponRect.getBoundsInParent())) {
                 int wRand = rand.nextInt(2);
@@ -210,7 +223,7 @@ public class CaveExplorer extends Application {
                 pane.getChildren().remove(weaponRect);
             }
         }
-
+        // Handle health power up interacting with player
         if(powerhp != null) {
             if(player.playerRect.getBoundsInParent().intersects(powerhp.getPowerUpShape().getBoundsInParent())) {
             	player.setHealth(player.maxHealth - getPlayerHealth());
@@ -218,7 +231,7 @@ public class CaveExplorer extends Application {
                 pane.getChildren().remove(powerhp.getPowerUpShape());
             }
         }
-
+        // Handle speed power up interacting with player
         if (power1 != null) {
             if(player.playerRect.getBoundsInParent().intersects(power1.getPowerUpShape().getBoundsInParent())) {
                 player.setSpeed(750);
@@ -227,27 +240,27 @@ public class CaveExplorer extends Application {
                 pane.getChildren().remove(power1.getPowerUpShape());
             }
         }
-
+        // Check speed timer if powered up
         if (poweredUp) {
             if (speedTimer + 10 < (System.currentTimeMillis() / 1000)) {
                 player.resetSpeed();
                 poweredUp = false;
             }
         }
-
+        // Check gun timer if powered up
         if (gunsUp) {
             if(weaponTimer + 10 < (System.currentTimeMillis() / 1000)) {
                 player.setWeaponBehavior(new BaseWeapon());
                 gunsUp = false;
             }
         }
-
+        // Move the labels with the pane as it follows the player
         enemyLabel.setTranslateX(pane.getTranslateX() * -1);
         enemyLabel.setTranslateY((pane.getTranslateY() * -1) + 15);
         healthLabel.setTranslateX(pane.getTranslateX() * -1);
         healthLabel.setTranslateY(pane.getTranslateY() * -1);
     }
-       
+    // Set up the arrays for bullets and enemies and call the various create functions  
     private void createGame()
     {
         bullets = new ArrayList<Bullet>();
@@ -260,7 +273,7 @@ public class CaveExplorer extends Application {
         createLabels();
     	setClip(scene);
     }
-    
+    // Remove the various elements from the screen and prep for a new game
     private void endGame()
     {
     	pane.getChildren().removeAll(bullets);
@@ -277,7 +290,7 @@ public class CaveExplorer extends Application {
     	player = new Player(caveMap.getNumTilesHoriz() * caveMap.getTileSize() / 2, caveMap.getNumTilesVert() * caveMap.getTileSize() / 2);
     	setClip(scene);
     }
-    
+    // Win the game, set the state to END, create the game over label, and stop the animation timer
     private void winGame() 
     {
     	setState(State.END);
@@ -297,7 +310,7 @@ public class CaveExplorer extends Application {
     	pane.getChildren().remove(enemyLabel);
     	pane.getChildren().add(gameOverLabel);
     }
-    
+    // Create the power ups
     public void createPowerUps(double playerx, double playery, PowerUp pow)
     {
         int xLimitUp = (int)playerx + 250;
@@ -325,7 +338,7 @@ public class CaveExplorer extends Application {
         rect.setY(y);
         pane.getChildren().add(rect);
     }
-    
+    // Process key inputs from the user
     private void processKey(KeyCode code, boolean on) {
     	if (getState() == State.GAME)
     	{    	
@@ -365,7 +378,7 @@ public class CaveExplorer extends Application {
             }
     	}
     }
-    
+    // Perform the shooting action
     private void shooting(int xdirection, int ydirection)
     {
     	List<Bullet> b = new ArrayList<Bullet>();
@@ -376,7 +389,7 @@ public class CaveExplorer extends Application {
         	pane.getChildren().add(bullet);
     	}
     }
-    
+    // Set up a new player and allow for user input
     private void createPlayer()
     {
     	player = new Player(caveMap.getNumTilesHoriz() * caveMap.getTileSize() / 2, caveMap.getNumTilesVert() * caveMap.getTileSize() / 2);
@@ -386,7 +399,7 @@ public class CaveExplorer extends Application {
         scene.setOnKeyPressed(e -> processKey(e.getCode(), true));
         scene.setOnKeyReleased(e -> processKey(e.getCode(), false));	
     }
-    
+    // Create n enemies and place them randomly on the screen and notify them of the player position
     private void createEnemies(int n)
     {
     	for (int i = 0; i < n; i++)
@@ -404,7 +417,7 @@ public class CaveExplorer extends Application {
     		player.move();
     	}
     }
-    
+    // Create new labels and add them to the pane
     private void createLabels()
     {
     	enemyLabel = new Label();
@@ -417,7 +430,7 @@ public class CaveExplorer extends Application {
         pane.getChildren().add(enemyLabel);
         pane.getChildren().add(healthLabel);
     }
-    
+    // Creat the menu and add the menu buttons
     private void createMenu()
     {
     	createMenu = false;
@@ -425,32 +438,32 @@ public class CaveExplorer extends Application {
 		pane.getChildren().add(menu.exitButton);
 		pane.getChildren().add(menu.gameLabel);	
     }
-    
+    // Returns the state of the game
     private State getState()
     {
     	return state;
     }
-    
+    // Sets the state of the game
     private void setState(State s)
     {
     	state = s;
     }
-    
+    // Get the total enemies that are alive
     private int getTotalEnemies()
     {
     	return totalEnemies;
     }
-    
+    // Set the total enemies that are alive
     private void setTotalEnemies(int n)
     {
     	totalEnemies = n;
     }
-    
+    // Returns the player's current health
     private int getPlayerHealth()
     {
     	return player.currentHealth;
     }
-    
+    // Sets the clip of the scene to be centered on the player until the player reaches the boundary of the map
     private void setClip(Scene scene)
     {
         Rectangle clip = new Rectangle();
@@ -467,7 +480,7 @@ public class CaveExplorer extends Application {
         pane.translateXProperty().bind(clip.xProperty().multiply(-1));
         pane.translateYProperty().bind(clip.yProperty().multiply(-1));
     }
-    
+    // Clamps a range of values to a min and max
     private double clampRange(double value, double min, double max) {
         if (value < min) return min ;
         if (value > max) return max ;

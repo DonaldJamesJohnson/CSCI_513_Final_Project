@@ -1,3 +1,8 @@
+/* WeaponBehavior.java
+ * Donald Johnson
+ * 
+ * WeaponBehavior is an interface which sets the framework for concrete shooting strategies
+ */
 package code;
 import java.util.List;
 

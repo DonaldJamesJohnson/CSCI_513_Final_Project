@@ -1,3 +1,9 @@
+/* PlayerTest.java
+ * Donald Johnson
+ * 
+ * PlayerTest tests the various aspects of the Player class to ensure that when 
+ * attributes are set, they are set properly.
+ */
 package tc;
 
 import static org.junit.jupiter.api.Assertions.*;

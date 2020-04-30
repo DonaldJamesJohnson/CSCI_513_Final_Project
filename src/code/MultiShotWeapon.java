@@ -1,3 +1,8 @@
+/* MultiShotWeapon.java
+ * Donald Johnson
+ * 
+ * MultiShotWeapon is a concrete WeaponBehavior for shooting Bullets
+ */
 package code;
 import java.util.ArrayList;
 import java.util.List;
